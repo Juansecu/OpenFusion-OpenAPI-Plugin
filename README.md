@@ -1,2 +1,3 @@
 # OpenFusion-OpenAPI-Plugin
-Open API definition for OpenFusion.
+
+Open API definition plugin for OpenFusion.
