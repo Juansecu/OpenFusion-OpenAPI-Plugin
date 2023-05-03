@@ -28,3 +28,7 @@ OpenAPI definition plugin for [OpenFusion](https://github.com/OpenFusionProject/
 
     - All required environment variables must be set before running the application.
     - Never give environment variable values to non-administrator users, since they could hack your server instance.
+
+## API Documentation
+
+The API documentation is available at the endpoint `/api/docs`.
