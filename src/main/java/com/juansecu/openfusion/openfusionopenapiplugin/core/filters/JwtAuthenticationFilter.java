@@ -14,6 +14,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         "([0-9a-z_=]+)\\.([0-9a-z_=]+)\\.([0-9a-z_\\-+/=]+)$";
 
     private final JwtAdapter jwtAdapter;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
@@ -40,9 +43,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final HttpServletResponse response,
         final FilterChain filterChain
     ) throws IOException, ServletException {
+        UserDetails account;
         UsernamePasswordAuthenticationToken authenticationToken;
-        String username;
         String token;
+        String username;
 
         final String authenticationHeaderValue = request.getHeader(
             JwtAuthenticationFilter.JWT_AUTHENTICATION_HEADER
@@ -63,30 +67,51 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         );
         username = this.jwtAdapter.getSubject(token);
 
-        if (
-            username != null &&
-            SecurityContextHolder.getContext().getAuthentication() == null
-        ) {
+        if (username == null) {
+            JwtAuthenticationFilter.CONSOLE_LOGGER.error(
+                "Invalid JSON Web Token"
+            );
+
+            filterChain.doFilter(request, response);
+
+            return;
+        }
+
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
             JwtAuthenticationFilter.CONSOLE_LOGGER.info(
                 String.format(
-                    "Authenticating user %s",
+                    "User %s is already authenticated",
                     username
                 )
             );
 
-            authenticationToken = new UsernamePasswordAuthenticationToken(
-                username,
-                null
-            );
+            filterChain.doFilter(request, response);
 
-            authenticationToken.setDetails(
-                new WebAuthenticationDetailsSource().buildDetails(request)
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-            request.setAttribute("username", username);
+            return;
         }
+
+        account = this.userDetailsService.loadUserByUsername(username);
+
+        JwtAuthenticationFilter.CONSOLE_LOGGER.info(
+            String.format(
+                "Authenticating user %s...",
+                username
+            )
+        );
+
+        authenticationToken = new UsernamePasswordAuthenticationToken(
+            username,
+            null,
+            account.getAuthorities()
+        );
+
+        request.setAttribute("username", username);
+
+        authenticationToken.setDetails(
+            new WebAuthenticationDetailsSource().buildDetails(request)
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         filterChain.doFilter(request, response);
     }
