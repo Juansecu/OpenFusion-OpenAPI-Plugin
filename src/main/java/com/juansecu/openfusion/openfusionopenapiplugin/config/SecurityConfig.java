@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.juansecu.openfusion.openfusionopenapiplugin.core.filters.JwtAuthenticationFilter;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -51,6 +51,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    protected PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     protected SecurityFilterChain securityFilterChain(
         final HttpSecurity httpSecurity
     ) throws Exception {
@@ -61,7 +66,8 @@ public class SecurityConfig {
                 "/api-docs/**",
                 "/auth/**",
                 "/docs",
-                "/swagger-ui/**"
+                "/swagger-ui/**",
+                "/verification-tokens/**"
             ).permitAll()
             .and()
             .authorizeHttpRequests().anyRequest().authenticated()
@@ -80,10 +86,5 @@ public class SecurityConfig {
             this.verificationTokenSecurityKey,
             this.verificationTokenSalt
         );
-    }
-
-    @Bean
-    protected PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

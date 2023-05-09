@@ -2,18 +2,21 @@ package com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountLevel;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.utils.TimeUtil;
+import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.models.entities.VerificationTokenEntity;
 
 @Entity(name = "Accounts")
 @Getter
+@NoArgsConstructor
+@RequiredArgsConstructor
 @Setter
 public class AccountEntity implements UserDetails {
     @Column(
@@ -23,19 +26,28 @@ public class AccountEntity implements UserDetails {
     )
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private Integer userId;
+    private Integer accountId;
     @Column(
         columnDefinition = "TEXT COLLATE NOCASE",
         name = "Login",
         nullable = false,
         unique = true
     )
+    @NonNull
     private String username;
+    @Column(
+        columnDefinition = "TEXT COLLATE NOCASE DEFAULT ''",
+        name = "Email",
+        nullable = false
+    )
+    @NonNull
+    private String email;
     @Column(
         columnDefinition = "TEXT",
         name = "Password",
         nullable = false
     )
+    @NonNull
     private String password;
     @Column(
         columnDefinition = "INTEGER DEFAULT 1",
@@ -50,6 +62,14 @@ public class AccountEntity implements UserDetails {
     )
     @Enumerated(EnumType.ORDINAL)
     private EAccountLevel accountLevel = EAccountLevel.USER;
+    @Column(
+        columnDefinition = "INTEGER DEFAULT 0",
+        name = "Verified",
+        nullable = false
+    )
+    private boolean isVerified = false;
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "account")
+    private List<VerificationTokenEntity> tokens;
     @Column(
         columnDefinition = "INTEGER DEFAULT (strftime('%s', 'now'))",
         name = "Created",

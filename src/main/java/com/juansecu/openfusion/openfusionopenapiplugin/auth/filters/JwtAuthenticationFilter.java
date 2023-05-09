@@ -1,4 +1,4 @@
-package com.juansecu.openfusion.openfusionopenapiplugin.core.filters;
+package com.juansecu.openfusion.openfusionopenapiplugin.auth.filters;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -105,7 +105,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             account.getAuthorities()
         );
 
-        request.setAttribute("username", username);
+        request.setAttribute("account", account);
 
         authenticationToken.setDetails(
             new WebAuthenticationDetailsSource().buildDetails(request)
@@ -120,9 +120,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(final HttpServletRequest request) {
         final AntPathRequestMatcher[] excludedMatchers = {
             new AntPathRequestMatcher("/api-docs/**"),
-            new AntPathRequestMatcher("/api/auth/**"),
+            new AntPathRequestMatcher("/auth/**"),
             new AntPathRequestMatcher("/docs"),
             new AntPathRequestMatcher("/swagger-ui/**"),
+            new AntPathRequestMatcher("/verification-tokens/**"),
         };
 
         return Arrays
