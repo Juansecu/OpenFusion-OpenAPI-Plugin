@@ -35,21 +35,19 @@ public class AccountsService {
     private final HostDetailsProvider hostDetailsProvider;
     private final VerificationTokensService verificationTokensService;
 
+    public AccountEntity getAccountByEmail(final String email) {
+        return this.accountsRepository
+            .findByEmailIgnoreCase(email)
+            .orElse(null);
+    }
+
     public AccountEntity getAccountByUsername(final String username) {
         return this.accountsRepository
             .findByUsernameIgnoreCase(username)
             .orElse(null);
     }
 
-    public void updateAccount(final AccountEntity account) {
-        AccountsService.CONSOLE_LOGGER.info(
-            String.format(
-                "Updating %s's account %s",
-                account.getUsername(),
-                "..."
-            )
-        );
-
+    public void saveAccount(final AccountEntity account) {
         this.accountsRepository.save(account);
     }
 
@@ -70,9 +68,9 @@ public class AccountsService {
         VerificationTokenEntity verificationToken;
 
         final AccountEntity account = (AccountEntity) request.getAttribute("account");
-        final AccountEntity accountWithGivenEmail = this.accountsRepository
-            .findByEmailIgnoreCase(updateEmailReqDto.getEmail())
-            .orElse(null);
+        final AccountEntity accountWithGivenEmail = this.getAccountByEmail(
+            updateEmailReqDto.getEmail()
+        );
 
         if (
             accountWithGivenEmail != null &&
@@ -142,7 +140,7 @@ public class AccountsService {
             user.setEmail(updateEmailReqDto.getEmail());
             user.setVerified(false);
 
-            this.updateAccount(user);
+            this.saveAccount(user);
 
             AccountsService.CONSOLE_LOGGER.info(
                 "Email address updated successfully"

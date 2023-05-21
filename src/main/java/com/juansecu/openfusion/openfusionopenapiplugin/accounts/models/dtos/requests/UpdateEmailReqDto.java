@@ -5,18 +5,21 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.AccountsValidationMessages;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.AccountsValidations;
+
 @Data
 public class UpdateEmailReqDto {
     @Email(
-        message = "User e-mail must be a valid e-mail address",
-        regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$"
+        message = AccountsValidationMessages.VALID_EMAIL,
+        regexp = AccountsValidations.EMAIL_PATTERN
     )
     @NotEmpty(
-        message = "E-mail cannot be empty"
+        message = AccountsValidationMessages.NOT_EMPTY_EMAIL
     )
     @Size(
-        max = 50,
-        message = "E-mail too large! Max allowed length is 50 characters"
+        max = AccountsValidations.MAX_EMAIL_LENGTH,
+        message = AccountsValidationMessages.TOO_LARGE_EMAIL
     )
     private String email;
 }

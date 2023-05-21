@@ -57,7 +57,23 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
 
             account.setVerified(true);
 
-            this.accountsService.updateAccount(account);
+            VerificationTokenInterceptor.CONSOLE_LOGGER.info(
+                String.format(
+                    "Setting %s's account as verified%s",
+                    account.getUsername(),
+                    "..."
+                )
+            );
+
+            this.accountsService.saveAccount(account);
+
+            VerificationTokenInterceptor.CONSOLE_LOGGER.info(
+                String.format(
+                    "%s's account has been verified successfully%s",
+                    account.getUsername(),
+                    "..."
+                )
+            );
 
             // TODO: Create a view for verified token
             //modelAndView.setViewName("redirect:/verification-tokens/verified");
