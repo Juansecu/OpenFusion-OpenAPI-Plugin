@@ -35,7 +35,8 @@ public class VerificationTokensService {
         final AccountEntity account
     ) {
         VerificationTokensService.CONSOLE_LOGGER.info(
-            "Generating reset password verification token..."
+            "Generating {}...",
+            EVerificationTokenType.EMAIL_VERIFICATION_TOKEN
         );
 
         final UUID token = UUID.randomUUID();
@@ -55,7 +56,8 @@ public class VerificationTokensService {
         );
 
         VerificationTokensService.CONSOLE_LOGGER.info(
-            "Saving reset password verification token..."
+            "Saving {}...",
+            EVerificationTokenType.EMAIL_VERIFICATION_TOKEN
         );
 
         return this.verificationTokensRepository.save(verificationToken);
