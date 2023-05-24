@@ -33,7 +33,7 @@ import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.models
 public class AuthenticationService {
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(AuthenticationService.class);
 
-    @Value("${ISSUER:OpenFusion}")
+    @Value("${issuer.name}")
     private String issuer;
     @Value("${mail.new-account-email-verification-message.message}")
     private String newAccountEmailVerificationMessage;
@@ -45,7 +45,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
     private final HostDetailsProvider hostDetailsProvider;
-    private final JwtAdapter jwtProvider;
+    private final JwtAdapter jwtAdapter;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
     private final VerificationTokensService verificationTokensService;
@@ -67,7 +67,7 @@ public class AuthenticationService {
             null,
             "User authenticated successfully",
             new AuthenticationDataResDto(
-                this.jwtProvider.generateJsonWebToken(
+                this.jwtAdapter.generateJsonWebToken(
                     account.getUsername(),
                     this.issuer
                 )

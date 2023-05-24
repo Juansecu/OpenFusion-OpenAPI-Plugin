@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class EmailService {
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(EmailService.class);
 
-    @Value("${mail.issuer}")
+    @Value("${issuer.name}")
     private String issuer;
     @Value("${spring.mail.username}")
     private String fromEmailAddress;
