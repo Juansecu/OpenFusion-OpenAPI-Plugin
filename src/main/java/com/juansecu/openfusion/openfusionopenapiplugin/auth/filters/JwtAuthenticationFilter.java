@@ -79,10 +79,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             JwtAuthenticationFilter.CONSOLE_LOGGER.info(
-                String.format(
-                    "User %s is already authenticated",
-                    username
-                )
+                "User {} is already authenticated",
+                username
             );
 
             filterChain.doFilter(request, response);
@@ -93,10 +91,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         account = this.userDetailsService.loadUserByUsername(username);
 
         JwtAuthenticationFilter.CONSOLE_LOGGER.info(
-            String.format(
-                "Authenticating user %s...",
-                username
-            )
+            "Authenticating user {}...",
+            username
         );
 
         authenticationToken = new UsernamePasswordAuthenticationToken(
@@ -121,7 +117,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final AntPathRequestMatcher[] excludedMatchers = {
             new AntPathRequestMatcher("/api-docs/**"),
             new AntPathRequestMatcher("/auth/**"),
+            new AntPathRequestMatcher("/dashboard/**"),
             new AntPathRequestMatcher("/docs"),
+            new AntPathRequestMatcher("/static/**"),
             new AntPathRequestMatcher("/swagger-ui/**"),
             new AntPathRequestMatcher("/verification-tokens/**"),
         };

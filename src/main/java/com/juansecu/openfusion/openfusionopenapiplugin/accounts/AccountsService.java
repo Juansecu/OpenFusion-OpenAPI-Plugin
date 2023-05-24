@@ -56,11 +56,8 @@ public class AccountsService {
         final HttpServletRequest request
     ) {
         AccountsService.CONSOLE_LOGGER.info(
-            String.format(
-                "Updating email for user %s%s",
-                ((AccountEntity) request.getAttribute("account")).getUsername(),
-                "..."
-            )
+            "Updating email for user {}...",
+            ((AccountEntity) request.getAttribute("account")).getUsername()
         );
 
         AccountEntity user;

@@ -1,5 +1,7 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.interceptors;
 
+import java.util.UUID;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +16,6 @@ import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.utils.CryptoUtil;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.VerificationTokensService;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenType;
-
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class VerificationTokenInterceptor implements HandlerInterceptor {
@@ -58,21 +58,15 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
             account.setVerified(true);
 
             VerificationTokenInterceptor.CONSOLE_LOGGER.info(
-                String.format(
-                    "Setting %s's account as verified%s",
-                    account.getUsername(),
-                    "..."
-                )
+                "Setting {}'s account as verified...",
+                account.getUsername()
             );
 
             this.accountsService.saveAccount(account);
 
             VerificationTokenInterceptor.CONSOLE_LOGGER.info(
-                String.format(
-                    "%s's account has been verified successfully%s",
-                    account.getUsername(),
-                    "..."
-                )
+                "{}'s account has been verified successfully...",
+                account.getUsername()
             );
 
             // TODO: Create a view for verified token

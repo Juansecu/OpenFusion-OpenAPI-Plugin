@@ -71,12 +71,9 @@ public class VerificationTokensService {
         final HttpServletRequest request
     ) {
         VerificationTokensService.CONSOLE_LOGGER.info(
-            String.format(
-                "Verifying %s for user %s%s",
-                verificationTokenType,
-                username,
-                "..."
-            )
+            "Verifying {} for user {}...",
+            verificationTokenType,
+            username
         );
 
         final AccountEntity account = (AccountEntity) request.getAttribute("account");
