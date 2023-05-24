@@ -47,7 +47,8 @@ public class AccountsService {
             .orElse(null);
     }
 
-    public void saveAccount(final AccountEntity account) {
+    public void setAccountAsVerified(final boolean shouldVerifyAccount, final AccountEntity account) {
+        account.setVerified(shouldVerifyAccount);
         this.accountsRepository.save(account);
     }
 
@@ -135,9 +136,8 @@ public class AccountsService {
             );
 
             user.setEmail(updateEmailReqDto.getEmail());
-            user.setVerified(false);
 
-            this.saveAccount(user);
+            this.setAccountAsVerified(false, user);
 
             AccountsService.CONSOLE_LOGGER.info(
                 "Email address updated successfully"

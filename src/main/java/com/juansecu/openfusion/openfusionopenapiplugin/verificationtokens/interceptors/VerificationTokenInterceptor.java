@@ -62,7 +62,7 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
                 account.getUsername()
             );
 
-            this.accountsService.saveAccount(account);
+            this.accountsService.setAccountAsVerified(true, account);
 
             VerificationTokenInterceptor.CONSOLE_LOGGER.info(
                 "{}'s account has been verified successfully...",
