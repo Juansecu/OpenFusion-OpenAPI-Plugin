@@ -1,0 +1,45 @@
+@font-face {
+    font-family: 'Square 721';
+    src: url(/api/static/fonts/square-721-regular.otf) format('opentype');
+}
+
+a,
+h1 {
+    color: #07B20E;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+body {
+    display: -webkit-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Square 721';
+}
+
+button {
+    cursor: pointer;
+    background-color: #07B20E;
+    transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+    background-color: #00c408;
+}
+
+button:focus {
+    outline: none;
+}
+
+.powered-by {
+    position: fixed;
+    bottom: 0;
+    margin-bottom: 2rem;
+    text-align: center;
+}

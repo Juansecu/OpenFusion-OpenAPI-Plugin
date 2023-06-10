@@ -20,7 +20,7 @@ public final class AccountsValidationMessages {
         "E-mail too large! Max allowed length is " +
         AccountsValidations.MAX_EMAIL_LENGTH +
         " characters";
-    public static final String VALID_EMAIL = "User e-mail must be a valid e-mail address";
+    public static final String VALID_EMAIL = "E-mail must be a valid e-mail address";
 
     private AccountsValidationMessages() {}
 }

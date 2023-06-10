@@ -41,3 +41,7 @@ OpenAPI definition plugin for [OpenFusion](https://github.com/OpenFusionProject/
 ## API Documentation
 
 The API documentation is available at the endpoint `/api/docs`.
+
+## User Interface
+
+The user interface is available at the endpoint `/api/auth/register`.

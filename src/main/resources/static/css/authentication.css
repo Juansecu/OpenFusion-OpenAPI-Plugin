@@ -1,0 +1,29 @@
+body {
+    overflow: hidden;
+    background: no-repeat center top/cover url(/api/static/images/holo-char.png);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    max-height: 75%;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 42%;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+.logo {
+    margin-top: 1rem;
+    width: 25%;
+}
+
+.welcome-to {
+    margin-top: 1.5rem;
+    width: 20% /* 25% */;
+}

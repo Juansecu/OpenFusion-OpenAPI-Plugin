@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.AccountsService;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountServiceError;
@@ -180,6 +182,29 @@ public class AuthenticationService {
             ),
             HttpStatus.CREATED
         );
+    }
+
+    public String register(
+        final RegisterReqDto registerReqDto,
+        final BindingResult bindingResult,
+        final Model model
+    ) {
+        if (bindingResult.hasErrors())
+            return "register";
+
+        final ResponseEntity<BasicResDto> registerResponse = this.register(
+            registerReqDto
+        );
+        final BasicResDto registerResponseBody = registerResponse.getBody();
+
+        if (!registerResponseBody.success()) {
+            model.addAttribute("error", registerResponseBody.message());
+            return "register";
+        }
+
+        model.addAttribute("success", true);
+
+        return "register";
     }
 
     private String replaceEmailVerificationParameters(

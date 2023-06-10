@@ -117,7 +117,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final AntPathRequestMatcher[] excludedMatchers = {
             new AntPathRequestMatcher("/api-docs/**"),
             new AntPathRequestMatcher("/auth/**"),
-            new AntPathRequestMatcher("/dashboard/**"),
             new AntPathRequestMatcher("/docs"),
             new AntPathRequestMatcher("/static/**"),
             new AntPathRequestMatcher("/swagger-ui/**"),

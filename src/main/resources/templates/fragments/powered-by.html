@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+
+    <title>Powered by</title>
+</head>
+<body>
+    <p th:fragment="powered-by" class="powered-by">
+        <span th:text="#{powered-by}"></span>
+
+        <a
+            th:href="@{https://github.com/Juansecu/OpenFusion-OpenAPI-Plugin}"
+            th:target="_blank"
+        >OpenFusion OpenAPI Plugin</a>&#44;
+
+        <span th:text="#{made-by}"></span>
+
+        <a
+            th:href="@{https://github.com/Juansecu}"
+            th:target="_blank"
+        >Juansecu</a>
+    </p>
+</body>
+</html>

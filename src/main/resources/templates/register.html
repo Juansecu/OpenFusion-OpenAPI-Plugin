@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+
+    <link rel="icon" type="image/x-icon" th:href="@{/static/images/openfusion-icon.ico}" />
+
+    <title
+        th:text="${#messages.msg('sign-up.label') + ' | ' + @environment.getProperty('issuer.name')}"
+    ></title>
+
+    <link rel="stylesheet" th:href="@{/static/css/authentication.css}" />
+    <link rel="stylesheet" th:href="@{/static/css/forms.css}" />
+    <link rel="stylesheet" th:href="@{/static/css/main.css}" />
+</head>
+<body>
+    <main>
+        <img
+            th:src="@{/static/images/welcome-to.png}"
+            th:alt="#{welcome-to}"
+            class="welcome-to"
+        />
+
+        <img
+            th:src="@{/static/images/openfusion-hero.png}"
+            th:alt="#{openfusion-logo}"
+            class="logo"
+        />
+
+        <h1 th:text="#{sign-up.label}"></h1>
+
+        <form th:action="@{/auth/register}" th:object="${registerReqDto}" id="registerForm" method="POST" autocomplete="off">
+            <span th:if="${error}" th:text="${error}" class="form__error"></span>
+
+            <span th:if="${success}" th:text="#{sign-up.success}" class="form__success"></span>
+
+            <div role="separator">
+                <label for="email" class="form__label">
+                    <span th:text="#{email.label}"></span>
+                </label>
+
+                <input
+                    type="email"
+                    th:field="*{email}"
+                    id="email"
+                    pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"
+                    maxlength="50"
+                    class="form__input"
+                    th:placeholder="#{email.input-placeholder}"
+                    required
+                    autofocus
+                />
+
+                <span id="emailError" class="form__input-error"></span>
+
+                <div
+                    role="alert"
+                    th:if="${#fields.hasErrors('email')}"
+                    th:errors="*{email}"
+                    id="emailPostErrors"
+                    class="form__input-error"
+                ></div>
+            </div>
+
+            <div role="separator">
+                <label for="username" class="form__label">
+                    <span th:text="#{username.label}"></span>
+                </label>
+
+                <input
+                    type="text"
+                    th:field="*{username}"
+                    id="username"
+                    pattern="^[0-9A-Za-z_-]+$"
+                    maxlength="32"
+                    minlength="4"
+                    class="form__input"
+                    th:placeholder="#{username.input-placeholder}"
+                    required
+                />
+
+                <span id="usernameError" class="form__input-error"></span>
+
+                <div
+                    role="alert"
+                    th:if="${#fields.hasErrors('username')}"
+                    th:errors="*{username}"
+                    id="usernamePostErrors"
+                    class="form__input-error"
+                ></div>
+            </div>
+
+            <div role="separator">
+                <label for="password" class="form__label">
+                    <span th:text="#{password.label}"></span>
+                </label>
+
+                <input
+                    type="password"
+                    th:field="*{password}"
+                    id="password"
+                    maxlength="32"
+                    minlength="8"
+                    class="form__input"
+                    th:placeholder="#{password.input-placeholder}"
+                    required
+                />
+
+                <span id="passwordError" class="form__input-error"></span>
+
+                <div
+                    role="alert"
+                    th:if="${#fields.hasErrors('password')}"
+                    th:errors="*{password}"
+                    id="passwordPostErrors"
+                    class="form__input-error"
+                ></div>
+            </div>
+
+            <div role="separator">
+                <label for="passwordConfirmation" class="form__label">
+                    <span th:text="#{password-confirmation.label}"></span>
+                </label>
+
+                <input
+                    type="password"
+                    id="passwordConfirmation"
+                    class="form__input"
+                    th:placeholder="#{password-confirmation.input-placeholder}"
+                    required
+                />
+
+                <span id="passwordConfirmationError" class="form__input-error"></span>
+            </div>
+
+            <button
+                type="submit"
+                id="registerButton"
+                class="form__submit-button form__button"
+                disabled="disabled"
+            >
+                <span th:text="#{sign-up.label}"></span>
+            </button>
+        </form>
+
+        <p th:replace="~{fragments/powered-by.html :: powered-by}"></p>
+    </main>
+
+    <script th:src="@{/static/js/register.js}" type="module"></script>
+</body>
+</html>
