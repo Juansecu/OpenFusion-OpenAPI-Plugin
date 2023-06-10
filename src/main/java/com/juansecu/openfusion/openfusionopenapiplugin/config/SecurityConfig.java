@@ -64,11 +64,12 @@ public class SecurityConfig {
             .and()
             .authorizeHttpRequests().requestMatchers(
                 "/api-docs/**",
+                "/api/auth/**",
                 "/auth/**",
                 "/docs",
                 "/static/**",
                 "/swagger-ui/**",
-                "/verification-tokens/**"
+                "/api/verification-tokens/**"
             ).permitAll()
             .and()
             .authorizeHttpRequests().anyRequest().authenticated()

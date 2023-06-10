@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdateEmailReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
 
-@RequestMapping("/accounts")
+@RequestMapping("/api/accounts")
 @RequiredArgsConstructor
 @RestController
 public class AccountsApiController {

@@ -12,7 +12,7 @@ import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.RegisterReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
 
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @RestController
 public class AuthenticationApiController {

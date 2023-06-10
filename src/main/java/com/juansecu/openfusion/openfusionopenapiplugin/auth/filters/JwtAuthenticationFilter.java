@@ -116,11 +116,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(final HttpServletRequest request) {
         final AntPathRequestMatcher[] excludedMatchers = {
             new AntPathRequestMatcher("/api-docs/**"),
+            new AntPathRequestMatcher("/api/auth/**"),
             new AntPathRequestMatcher("/auth/**"),
             new AntPathRequestMatcher("/docs"),
             new AntPathRequestMatcher("/static/**"),
             new AntPathRequestMatcher("/swagger-ui/**"),
-            new AntPathRequestMatcher("/verification-tokens/**"),
+            new AntPathRequestMatcher("/api/verification-tokens/**")
         };
 
         return Arrays
