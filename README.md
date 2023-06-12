@@ -38,6 +38,10 @@ OpenAPI definition plugin for [OpenFusion](https://github.com/OpenFusionProject/
     - For security reasons, it is recommended to use a dedicated e-mail account to send e-mails.
     - For security reasons, `VERIFICATION_TOKEN_SALT_KEY` and `VERIFICATION_TOKEN_SECURITY_KEY` must be different from each other.
 
+## Features
+
+You can check the current state of features [here](https://github.com/Juansecu/OpenFusion-OpenAPI-Plugin/wiki/Features).
+
 ## API Documentation
 
 The API documentation is available at the endpoint `/docs`.
