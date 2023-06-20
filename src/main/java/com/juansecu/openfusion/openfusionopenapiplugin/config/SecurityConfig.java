@@ -1,7 +1,8 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.config;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,9 +14,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.encrypt.Encryptors;
-import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -25,10 +25,9 @@ import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.JwtAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    @Value("${VERIFICATION_TOKEN_SALT_KEY}")
-    private String verificationTokenSalt;
-    @Value("${VERIFICATION_TOKEN_SECURITY_KEY}")
-    private String verificationTokenSecurityKey;
+    @Autowired
+    @Qualifier("delegatedAuthenticationEntryPoint")
+    private AuthenticationEntryPoint authenticationEntryPoint;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
@@ -67,6 +66,7 @@ public class SecurityConfig {
                 "/api/auth/**",
                 "/auth/**",
                 "/docs",
+                "/favicon.ico",
                 "/static/**",
                 "/swagger-ui/**",
                 "/api/verification-tokens/**"
@@ -77,16 +77,9 @@ public class SecurityConfig {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authenticationProvider(this.authenticationProvider())
-            .addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling().authenticationEntryPoint(this.authenticationEntryPoint);
 
         return httpSecurity.build();
-    }
-
-    @Bean
-    protected TextEncryptor textEncryptor() {
-        return Encryptors.text(
-            this.verificationTokenSecurityKey,
-            this.verificationTokenSalt
-        );
     }
 }
