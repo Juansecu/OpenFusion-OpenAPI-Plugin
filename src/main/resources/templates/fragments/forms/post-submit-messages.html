@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post submit messages</title>
+</head>
+<body>
+    <span
+        th:fragment="post-submit-error"
+        th:if="${error != null || param.error != null}"
+        th:text="${error} ? ${error} : ${param.error}"
+        class="form__error"
+    ></span>
+
+    <span
+        th:fragment="post-submit-success"
+        th:if="${success != null || param.success != null}"
+        th:text="${success} ? ${success} : ${param.success}"
+        class="form__success"
+    ></span>
+</body>
+</html>

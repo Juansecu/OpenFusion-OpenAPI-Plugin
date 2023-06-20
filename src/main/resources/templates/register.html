@@ -29,10 +29,14 @@
 
         <h1 th:text="#{sign-up.label}"></h1>
 
-        <form th:action="@{/auth/register}" th:object="${registerReqDto}" id="registerForm" method="POST" autocomplete="off">
-            <span th:if="${error}" th:text="${error}" class="form__error"></span>
-
-            <span th:if="${success}" th:text="#{sign-up.success}" class="form__success"></span>
+        <form
+            th:action="@{/auth/register}"
+            th:object="${registerReqDto}"
+            id="registerForm"
+            method="POST"
+            autocomplete="off"
+        >
+            <span th:replace="~{fragments/forms/post-submit-messages.html :: post-submit-error}"></span>
 
             <div role="separator">
                 <label for="email" class="form__label">
@@ -62,60 +66,15 @@
                 ></div>
             </div>
 
-            <div role="separator">
-                <label for="username" class="form__label">
-                    <span th:text="#{username.label}"></span>
-                </label>
+            <div
+                th:replace="~{fragments/forms/authentication.html :: username-input}"
+                role="separator"
+            ></div>
 
-                <input
-                    type="text"
-                    th:field="*{username}"
-                    id="username"
-                    pattern="^[0-9A-Za-z_-]+$"
-                    maxlength="32"
-                    minlength="4"
-                    class="form__input"
-                    th:placeholder="#{username.input-placeholder}"
-                    required
-                />
-
-                <span id="usernameError" class="form__input-error"></span>
-
-                <div
-                    role="alert"
-                    th:if="${#fields.hasErrors('username')}"
-                    th:errors="*{username}"
-                    id="usernamePostErrors"
-                    class="form__input-error"
-                ></div>
-            </div>
-
-            <div role="separator">
-                <label for="password" class="form__label">
-                    <span th:text="#{password.label}"></span>
-                </label>
-
-                <input
-                    type="password"
-                    th:field="*{password}"
-                    id="password"
-                    maxlength="32"
-                    minlength="8"
-                    class="form__input"
-                    th:placeholder="#{password.input-placeholder}"
-                    required
-                />
-
-                <span id="passwordError" class="form__input-error"></span>
-
-                <div
-                    role="alert"
-                    th:if="${#fields.hasErrors('password')}"
-                    th:errors="*{password}"
-                    id="passwordPostErrors"
-                    class="form__input-error"
-                ></div>
-            </div>
+            <div
+                th:replace="~{fragments/forms/authentication.html :: password-input}"
+                role="separator"
+            ></div>
 
             <div role="separator">
                 <label for="passwordConfirmation" class="form__label">
@@ -142,6 +101,14 @@
                 <span th:text="#{sign-up.label}"></span>
             </button>
         </form>
+
+        <p class="form__info">
+            <span th:text="#{already-have-an-account}"></span>
+
+            <a th:href="@{/auth/login}">
+                <span th:text="${#messages.msg('login.label' ) + ' ' + #messages.msg('here')}"></span>
+            </a>
+        </p>
 
         <p th:replace="~{fragments/powered-by.html :: powered-by}"></p>
     </main>

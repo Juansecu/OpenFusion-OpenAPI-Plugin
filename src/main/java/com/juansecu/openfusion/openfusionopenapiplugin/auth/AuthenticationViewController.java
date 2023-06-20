@@ -1,8 +1,8 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.auth;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.LoginReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.RegisterReqDto;
-import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
 
 @Controller
 @RequestMapping("/auth")
@@ -19,8 +19,32 @@ import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.respon
 public class AuthenticationViewController {
     private final AuthenticationService authenticationService;
 
+    @GetMapping("/login")
+    public String login(final LoginReqDto loginReqDto) {
+        return "login";
+    }
+
+    @PostMapping(
+        consumes = "application/x-www-form-urlencoded",
+        path = "/login"
+    )
+    public String login(
+        @Valid
+        final LoginReqDto loginReqDto,
+        final BindingResult bindingResult,
+        final Model model,
+        final HttpServletResponse response
+    ) {
+        return this.authenticationService.authenticate(
+            loginReqDto,
+            bindingResult,
+            model,
+            response
+        );
+    }
+
     @GetMapping("/register")
-    public String register(RegisterReqDto registerReqDto) {
+    public String register(final RegisterReqDto registerReqDto) {
         return "register";
     }
 
@@ -34,6 +58,10 @@ public class AuthenticationViewController {
         final BindingResult bindingResult,
         final Model model
     ) {
-        return this.authenticationService.register(registerReqDto, bindingResult, model);
+        return this.authenticationService.register(
+            registerReqDto,
+            bindingResult,
+            model
+        );
     }
 }

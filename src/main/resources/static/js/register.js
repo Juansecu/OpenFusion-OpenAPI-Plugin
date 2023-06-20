@@ -6,14 +6,14 @@ import {
 } from './forms/form-validations.js';
 import {
     checkEmail,
-    checkPassword,
     checkPasswordConfirmation,
+    checkPasswordWithConfirmation,
     checkUsername
 } from './forms/forms.js';
 
 email.addEventListener('input', checkEmail);
 
-password.addEventListener('input', checkPassword);
+password.addEventListener('input', checkPasswordWithConfirmation);
 
 passwordConfirmation.addEventListener('input', checkPasswordConfirmation);
 

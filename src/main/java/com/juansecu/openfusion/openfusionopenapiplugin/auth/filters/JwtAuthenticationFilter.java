@@ -2,11 +2,13 @@ package com.juansecu.openfusion.openfusionopenapiplugin.auth.filters;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.AuthenticationService;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.adapters.JwtAdapter;
 
 @Component
@@ -29,10 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(JwtAuthenticationFilter.class);
     private static final String JWT_AUTHENTICATION_HEADER = "Authorization";
     private static final String JWT_AUTHENTICATION_HEADER_PREFIX = "Bearer ";
-    private static final String TOKEN_PATTERN =
-        "^" +
-        JwtAuthenticationFilter.JWT_AUTHENTICATION_HEADER_PREFIX +
-        "([0-9a-z_=]+)\\.([0-9a-z_=]+)\\.([0-9a-z_\\-+/=]+)$";
+    private static final String TOKEN_PATTERN = "([0-9a-z_=]+)\\.([0-9a-z_=]+)\\.([0-9a-z_\\-+/=]+)";
 
     private final JwtAdapter jwtAdapter;
     private final UserDetailsService userDetailsService;
@@ -48,11 +48,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token;
         String username;
 
+        final Cookie authenticationCookie = Arrays
+            .stream(
+                Objects.requireNonNullElse(
+                    request.getCookies(),
+                    new Cookie[0]
+                )
+            )
+            .filter(cookie -> cookie.getName().equals(AuthenticationService.AUTHENTICATION_COOKIE_NAME))
+            .findFirst()
+            .orElse(null);
         final String authenticationHeaderValue = request.getHeader(
             JwtAuthenticationFilter.JWT_AUTHENTICATION_HEADER
         );
+        final boolean isValidAuthenticationCookie = this.isValidToken(
+            authenticationCookie
+        );
+        final boolean isValidAuthenticationHeaderValue = this.isValidToken(
+            authenticationHeaderValue
+        );
 
-        if (!this.isValidToken(authenticationHeaderValue)) {
+        if (!isValidAuthenticationCookie && !isValidAuthenticationHeaderValue) {
             JwtAuthenticationFilter.CONSOLE_LOGGER.error(
                 "Invalid JSON Web Token"
             );
@@ -62,9 +78,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        token = authenticationHeaderValue.substring(
-            JWT_AUTHENTICATION_HEADER_PREFIX.length()
-        );
+        if (isValidAuthenticationCookie) {
+            token = Objects.requireNonNull(authenticationCookie).getValue();
+        } else {
+            token = authenticationHeaderValue.substring(
+                JwtAuthenticationFilter.JWT_AUTHENTICATION_HEADER_PREFIX.length()
+            );
+        }
+
         username = this.jwtAdapter.getSubject(token);
 
         if (username == null) {
@@ -119,6 +140,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             new AntPathRequestMatcher("/api/auth/**"),
             new AntPathRequestMatcher("/auth/**"),
             new AntPathRequestMatcher("/docs"),
+            new AntPathRequestMatcher("/favicon.ico"),
             new AntPathRequestMatcher("/static/**"),
             new AntPathRequestMatcher("/swagger-ui/**"),
             new AntPathRequestMatcher("/api/verification-tokens/**")
@@ -129,6 +151,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             .anyMatch(
                 (AntPathRequestMatcher matcher) -> matcher.matches(request)
             );
+    }
+
+    private boolean isValidToken(final Cookie authenticationCookie) {
+        if (authenticationCookie == null) {
+            JwtAuthenticationFilter.CONSOLE_LOGGER.error(
+                "Authentication cookie is not present"
+            );
+
+            return false;
+        }
+
+        final String token = authenticationCookie.getValue();
+        final Pattern pattern = Pattern.compile(
+            "^" +
+                JwtAuthenticationFilter.TOKEN_PATTERN +
+                "$",
+            Pattern.CASE_INSENSITIVE
+        );
+        final Matcher matcher = pattern.matcher(token);
+
+        if(!matcher.find()) {
+            JwtAuthenticationFilter.CONSOLE_LOGGER.error(
+                "Invalid authentication cookie value"
+            );
+
+            return false;
+        }
+
+        return this.jwtAdapter.isValidJsonWebToken(token);
     }
 
     private boolean isValidToken(final String authenticationHeaderValue) {
@@ -142,7 +193,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token;
 
-        final Pattern pattern = Pattern.compile(JwtAuthenticationFilter.TOKEN_PATTERN, Pattern.CASE_INSENSITIVE);
+        final Pattern pattern = Pattern.compile(
+            "^" +
+                JwtAuthenticationFilter.JWT_AUTHENTICATION_HEADER_PREFIX +
+                JwtAuthenticationFilter.TOKEN_PATTERN +
+                "$",
+            Pattern.CASE_INSENSITIVE
+        );
         final Matcher matcher = pattern.matcher(authenticationHeaderValue);
 
         if(!matcher.find()) {

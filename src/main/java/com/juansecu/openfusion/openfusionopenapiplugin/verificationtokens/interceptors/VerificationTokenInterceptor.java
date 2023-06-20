@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -17,6 +18,7 @@ import com.juansecu.openfusion.openfusionopenapiplugin.shared.utils.CryptoUtil;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.VerificationTokensService;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenType;
 
+@Component
 @RequiredArgsConstructor
 public class VerificationTokenInterceptor implements HandlerInterceptor {
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(VerificationTokenInterceptor.class);
@@ -52,15 +54,11 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
 
         if (verificationTokenType == EVerificationTokenType.EMAIL_VERIFICATION_TOKEN) {
             VerificationTokenInterceptor.CONSOLE_LOGGER.info(
-                "Setting account as verified..."
-            );
-
-            account.setVerified(true);
-
-            VerificationTokenInterceptor.CONSOLE_LOGGER.info(
                 "Setting {}'s account as verified...",
                 account.getUsername()
             );
+
+            account.setVerified(true);
 
             this.accountsService.setAccountAsVerified(true, account);
 

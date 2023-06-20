@@ -1,5 +1,9 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.auth;
 
+import java.util.Objects;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +37,8 @@ import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.models
 @RequiredArgsConstructor
 @Service
 public class AuthenticationService {
+    public static final String AUTHENTICATION_COOKIE_NAME = "token";
+
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(AuthenticationService.class);
 
     @Value("${issuer.name}")
@@ -75,6 +81,44 @@ public class AuthenticationService {
                 )
             )
         );
+    }
+
+    public String authenticate(
+        final LoginReqDto loginReqDto,
+        final BindingResult bindingResult,
+        final Model model,
+        final HttpServletResponse response
+    ) {
+        if (bindingResult.hasErrors())
+            return "login";
+
+        Cookie authenticationCookie;
+        String token;
+
+        final BasicResDto loginResponse = this.authenticate(
+            loginReqDto
+        );
+
+        if (!loginResponse.success()) {
+            model.addAttribute("error", loginResponse.message());
+            return "login";
+        }
+
+        token = ((AuthenticationDataResDto) loginResponse.data()).token();
+
+        authenticationCookie = new Cookie(
+            AuthenticationService.AUTHENTICATION_COOKIE_NAME,
+            token
+        );
+
+        authenticationCookie.setHttpOnly(true);
+        authenticationCookie.setMaxAge(-(JwtAdapter.MINUTES_OF_VALID_TOKEN * 60));
+        authenticationCookie.setPath("/");
+        authenticationCookie.setSecure(true);
+
+        response.addCookie(authenticationCookie);
+
+        return "login";
     }
 
     public ResponseEntity<BasicResDto> register(final RegisterReqDto registerReqDto) {
@@ -197,14 +241,12 @@ public class AuthenticationService {
         );
         final BasicResDto registerResponseBody = registerResponse.getBody();
 
-        if (!registerResponseBody.success()) {
+        if (!Objects.requireNonNull(registerResponseBody).success()) {
             model.addAttribute("error", registerResponseBody.message());
             return "register";
         }
 
-        model.addAttribute("success", true);
-
-        return "register";
+        return "redirect:/auth/login?success=You+have+successfully+signed+up%21+Check+your+e-mail+to+verify+your+account";
     }
 
     private String replaceEmailVerificationParameters(

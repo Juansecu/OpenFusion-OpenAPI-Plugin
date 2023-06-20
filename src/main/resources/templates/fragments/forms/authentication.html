@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Authentication</title>
+</head>
+<body>
+    <div th:fragment="username-input" role="separator">
+        <label for="username" class="form__label">
+            <span th:text="#{username.label}"></span>
+        </label>
+
+        <input
+            type="text"
+            th:field="*{username}"
+            id="username"
+            pattern="^[0-9A-Za-z_-]+$"
+            maxlength="32"
+            minlength="4"
+            class="form__input"
+            th:placeholder="#{username.input-placeholder}"
+            required
+        />
+
+        <span id="usernameError" class="form__input-error"></span>
+
+        <div
+            role="alert"
+            th:if="${#fields.hasErrors('username')}"
+            th:errors="*{username}"
+            id="usernamePostErrors"
+            class="form__input-error"
+        ></div>
+    </div>
+
+    <div th:fragment="password-input" role="separator">
+        <label for="password" class="form__label">
+            <span th:text="#{password.label}"></span>
+        </label>
+
+        <input
+            type="password"
+            th:field="*{password}"
+            id="password"
+            maxlength="32"
+            minlength="8"
+            class="form__input"
+            th:placeholder="#{password.input-placeholder}"
+            required
+        />
+
+        <span id="passwordError" class="form__input-error"></span>
+
+        <div
+            role="alert"
+            th:if="${#fields.hasErrors('password')}"
+            th:errors="*{password}"
+            id="passwordPostErrors"
+            class="form__input-error"
+        ></div>
+    </div>
+</body>
+</html>

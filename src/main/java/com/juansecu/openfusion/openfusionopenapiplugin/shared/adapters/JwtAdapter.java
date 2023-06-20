@@ -12,9 +12,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtAdapter {
+    public static final int MINUTES_OF_VALID_TOKEN = 30;
+
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(JwtAdapter.class);
     private static final Algorithm JWT_ALGORITHM = Algorithm.HMAC256("${JWT_SECRET}");
-    private static final int MINUTES_OF_VALID_TOKEN = 30;
 
     public String generateJsonWebToken(final String subject, final String issuer) {
         JwtAdapter.CONSOLE_LOGGER.info("Generating JSON Web Token...");

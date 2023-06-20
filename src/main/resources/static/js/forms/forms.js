@@ -30,18 +30,7 @@ export function checkEmail(event) {
 export function checkPassword(event) {
     const passwordInput = event.target;
     const passwordPostErrors = document.getElementById('passwordPostErrors');
-    const passwordConfirmationValidationResult = validatePasswordConfirmation(
-        passwordInput.value,
-        passwordConfirmation.value
-    );
     const passwordValidationResult = validatePassword(passwordInput.value);
-
-    if (!passwordConfirmationValidationResult.isValid) {
-        passwordConfirmation.classList.remove('is-valid');
-        passwordConfirmation.classList.add('is-invalid');
-
-        passwordConfirmationError.textContent = passwordConfirmationValidationResult.errorMessage;
-    }
 
     if (!passwordValidationResult.isValid) {
         if (passwordPostErrors) emailPostErrors.textContent = '';
@@ -80,6 +69,39 @@ export function checkPasswordConfirmation(event) {
 
     passwordConfirmationInput.classList.remove('is-invalid');
     passwordConfirmationInput.classList.add('is-valid');
+}
+
+export function checkPasswordWithConfirmation(event) {
+    const passwordInput = event.target;
+    const passwordPostErrors = document.getElementById('passwordPostErrors');
+    const passwordConfirmationValidationResult = validatePasswordConfirmation(
+        passwordInput.value,
+        passwordConfirmation.value
+    );
+    const passwordValidationResult = validatePassword(passwordInput.value);
+
+    if (!passwordConfirmationValidationResult.isValid) {
+        passwordConfirmation.classList.remove('is-valid');
+        passwordConfirmation.classList.add('is-invalid');
+
+        passwordConfirmationError.textContent = passwordConfirmationValidationResult.errorMessage;
+    }
+
+    if (!passwordValidationResult.isValid) {
+        if (passwordPostErrors) emailPostErrors.textContent = '';
+
+        passwordInput.classList.remove('is-valid');
+        passwordInput.classList.add('is-invalid');
+
+        passwordError.textContent = passwordValidationResult.errorMessage;
+
+        return;
+    }
+
+    passwordError.textContent = '';
+
+    event.target.classList.remove('is-invalid');
+    event.target.classList.add('is-valid');
 }
 
 export function checkUsername(event) {

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <link rel="icon" type="image/x-icon" th:href="@{/static/images/openfusion-icon.ico}" />
+
+    <title
+        th:text="${#messages.msg('login.label') + ' | ' + @environment.getProperty('issuer.name')}"
+    ></title>
+
+    <link rel="stylesheet" th:href="@{/static/css/authentication.css}" />
+    <link rel="stylesheet" th:href="@{/static/css/forms.css}" />
+    <link rel="stylesheet" th:href="@{/static/css/main.css}" />
+</head>
+<body>
+    <main>
+        <img
+            th:src="@{/static/images/welcome-to.png}"
+            th:alt="#{welcome-to}"
+            class="welcome-to"
+        />
+
+        <img
+            th:src="@{/static/images/openfusion-hero.png}"
+            th:alt="#{openfusion-logo}"
+            class="logo"
+        />
+
+        <h1 th:text="#{login.label}"></h1>
+
+        <form
+            th:action="@{/auth/login}"
+            th:object="${loginReqDto}"
+            id="loginForm"
+            method="POST"
+        >
+            <span th:replace="~{fragments/forms/post-submit-messages.html :: post-submit-error}"></span>
+
+            <span th:replace="~{fragments/forms/post-submit-messages.html :: post-submit-success}"></span>
+
+            <div
+                th:replace="~{fragments/forms/authentication.html :: username-input}"
+                role="separator"
+            ></div>
+
+            <div
+                th:replace="~{fragments/forms/authentication.html :: password-input}"
+                role="separator"
+            ></div>
+
+            <button
+                type="submit"
+                id="loginButton"
+                class="form__submit-button form__button"
+                disabled="disabled"
+            >
+                <span th:text="#{login.label}"></span>
+            </button>
+        </form>
+
+        <p class="form__info">
+            <span th:text="#{dont-have-an-account}"></span>
+
+            <a th:href="@{/auth/register}">
+                <span th:text="${#messages.msg('sign-up.label' ) + ' ' + #messages.msg('here')}"></span>
+            </a>
+        </p>
+
+        <p th:replace="~{fragments/powered-by.html :: powered-by}"></p>
+    </main>
+
+    <script th:src="@{/static/js/login.js}" type="module"></script>
+</body>
+</html>
