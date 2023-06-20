@@ -1,6 +1,7 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums;
 
 public enum EAccountServiceError {
+    ACCOUNT_ALREADY_VERIFIED("ACCOUNT_ALREADY_VERIFIED"),
     COULD_NOT_SEND_VERIFICATION_EMAIL("COULD_NOT_SEND_VERIFICATION_EMAIL"),
     EMAIL_IN_USE("EMAIL_IN_USE"),
     SAME_EMAIL("SAME_EMAIL"),

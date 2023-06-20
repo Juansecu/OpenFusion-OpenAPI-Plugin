@@ -2,18 +2,23 @@ package com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.inter
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.AccountsService;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountServiceError;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
+import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.utils.CryptoUtil;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.VerificationTokensService;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenType;
@@ -25,6 +30,7 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
 
     private final AccountsService accountsService;
     private final CryptoUtil cryptoUtil;
+    private final ObjectMapper objectMapper;
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -77,7 +83,7 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
         final HttpServletRequest request,
         final HttpServletResponse response,
         final Object handler
-    ) {
+    ) throws Exception {
         VerificationTokenInterceptor.CONSOLE_LOGGER.info(
             "Pre-intercepting token verification request..."
         );
@@ -88,6 +94,29 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
         final UUID decryptedToken = UUID.fromString(
             this.cryptoUtil.decrypt(request.getParameter("token"))
         );
+
+        if (account.isVerified()) {
+            VerificationTokenInterceptor.CONSOLE_LOGGER.info(
+                "{}'s account is already verified...",
+                account.getUsername()
+            );
+
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
+
+            response.getWriter().write(
+                this.objectMapper.writeValueAsString(
+                    new BasicResDto(
+                        false,
+                        EAccountServiceError.ACCOUNT_ALREADY_VERIFIED,
+                        "Account is already verified",
+                        null
+                    )
+                )
+            );
+
+            return false;
+        }
 
         request.setAttribute("account", account);
         request.setAttribute("decryptedToken", decryptedToken);

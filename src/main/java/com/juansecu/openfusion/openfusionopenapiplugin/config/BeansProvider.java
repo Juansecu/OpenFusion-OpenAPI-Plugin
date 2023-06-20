@@ -1,5 +1,6 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,12 +23,8 @@ public class BeansProvider {
     private final IAccountsRepository accountsRepository;
 
     @Bean
-    protected UserDetailsService userDetailsService() {
-        return (final String username) -> this.accountsRepository
-            .findByUsernameIgnoreCase(username)
-            .orElseThrow(
-                () -> new UsernameNotFoundException("Account not found")
-            );
+    protected ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 
     @Bean
@@ -36,5 +33,14 @@ public class BeansProvider {
             this.verificationTokenSecurityKey,
             this.verificationTokenSalt
         );
+    }
+
+    @Bean
+    protected UserDetailsService userDetailsService() {
+        return (final String username) -> this.accountsRepository
+            .findByUsernameIgnoreCase(username)
+            .orElseThrow(
+                () -> new UsernameNotFoundException("Account not found")
+            );
     }
 }
