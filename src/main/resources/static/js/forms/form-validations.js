@@ -32,6 +32,35 @@ export function validateEmail(email) {
 }
 
 /**
+ * @param {string} email
+ * @param {string} emailConfirmation
+ * @returns {{
+ *   errorMessage: string,
+ *   isValid: boolean
+ * }}
+ */
+export function validateEmailConfirmation(email, emailConfirmation) {
+    const result = {
+        errorMessage: '',
+        isValid: false
+    };
+
+    if (!emailConfirmation) {
+        result.errorMessage = 'Email confirmation cannot be empty';
+        return result;
+    }
+
+    if (email !== emailConfirmation) {
+        result.errorMessage = 'Email and email confirmation do not match';
+        return result;
+    }
+
+    result.isValid = result.errorMessage === '';
+
+    return result;
+}
+
+/**
  * @param {string} password
  * @returns {{
  *   errorMessage: string,
@@ -66,7 +95,7 @@ export function validatePassword(password) {
 
 /**
  * @param {string} password
- * @param {string} passwordVerification
+ * @param {string} passwordConfirmation
  * @returns {{
  *   errorMessage: string,
  *   isValid: boolean

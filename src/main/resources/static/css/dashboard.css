@@ -1,0 +1,79 @@
+body {
+    display: flex;
+    overflow: hidden;
+}
+
+aside {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    isolation: isolate;
+    width: 27%;
+    height: 100vh;
+    background: no-repeat center top/cover url(/static/images/huntors-crest.webp);
+}
+
+aside::after {
+    position: absolute;
+    z-index: -1;
+    content: '';
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+form {
+    width: 50%;
+}
+
+h1 {
+    margin-bottom: 6.12rem;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+    width: 73%;
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 6rem;
+    width: 80%;
+}
+
+nav a {
+    width: 100%;
+    border-radius: 50px;
+    padding: 0.44rem 0;
+    text-align: center;
+    color: #FFFFFF;
+    background-color: rgba(217, 217, 217, 0.50);
+    transition: background-color 0.3s ease-in-out;
+}
+
+nav a.active {
+    background-color: rgba(7, 159, 13, 0.50);
+}
+
+nav a:hover {
+    text-decoration: none;
+    background-color: rgba(217, 217, 217, 0.75);
+}
+
+nav a.active:hover {
+    background-color: rgba(7, 159, 13, 0.75);
+}
+
+.logo {
+    width: 52%;
+}
+
+h1,
+.logo {
+    margin-top: 1.56rem;
+}

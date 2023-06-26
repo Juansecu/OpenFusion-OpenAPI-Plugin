@@ -7,8 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.repositories.IAccountsRepository;
 
@@ -25,6 +27,11 @@ public class BeansProvider {
     @Bean
     protected ObjectMapper objectMapper() {
         return new ObjectMapper();
+    }
+
+    @Bean
+    protected PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

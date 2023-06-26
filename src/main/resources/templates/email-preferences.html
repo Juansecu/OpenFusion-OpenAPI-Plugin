@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+
+    <link rel="icon" type="image/x-icon" th:href="@{/static/images/openfusion-icon.ico}" />
+
+    <title
+        th:text="${#messages.msg('email-preferences') + ' | ' + @environment.getProperty('issuer.name')}"
+    ></title>
+
+    <link rel="stylesheet" th:href="@{/static/css/dashboard.css}" />
+    <link rel="stylesheet" th:href="@{/static/css/forms.css}" />
+    <link rel="stylesheet" th:href="@{/static/css/main.css}" />
+</head>
+<body>
+    <aside th:replace="~{fragments/dashboard.html :: navigation-bar}"></aside>
+
+    <main>
+        <h1 th:text="#{email.change-email-address}"></h1>
+
+        <form
+            th:action="@{/accounts/email-preferences}"
+            th:object="${updateEmailReqDto}"
+            id="updateEmailForm"
+            method="POST"
+        >
+            <span th:replace="~{fragments/forms/post-submit-messages.html :: post-submit-error}"></span>
+
+            <span th:replace="~{fragments/forms/post-submit-messages.html :: post-submit-success}"></span>
+
+            <div role="separator">
+                <label for="email" class="form__label">
+                    <span th:text="#{email.new-email-address.label}"></span>
+                </label>
+
+                <input
+                    type="email"
+                    th:field="*{email}"
+                    id="email"
+                    pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"
+                    maxlength="50"
+                    class="form__input"
+                    th:placeholder="#{email.new-email-address.input-placeholder}"
+                    required
+                    autofocus
+                />
+
+                <span id="emailError" class="form__input-error"></span>
+
+                <div
+                    role="alert"
+                    th:if="${#fields.hasErrors('email')}"
+                    th:errors="*{email}"
+                    id="emailPostErrors"
+                    class="form__input-error"
+                ></div>
+            </div>
+
+            <div role="separator">
+                <label for="email" class="form__label">
+                    <span th:text="#{email.new-email-address-confirmation.label}"></span>
+                </label>
+
+                <input
+                    type="email"
+                    id="emailConfirmation"
+                    pattern="^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"
+                    maxlength="50"
+                    class="form__input"
+                    th:placeholder="#{email.new-email-address-confirmation.input-placeholder}"
+                    required
+                />
+
+                <span id="emailConfirmationError" class="form__input-error"></span>
+            </div>
+
+            <div
+                th:replace="~{fragments/forms/authentication.html :: password-input (isCurrentPassword=true)}"
+                role="separator"
+            ></div>
+
+            <button
+                type="submit"
+                id="updateEmailButton"
+                class="form__submit-button form__button"
+                disabled="disabled"
+            >
+                <span th:text="#{email.update-email-address}"></span>
+            </button>
+        </form>
+
+        <p th:replace="~{fragments/powered-by.html :: powered-by}"></p>
+    </main>
+
+    <script th:src="@{/static/js/email-preferences.js}" type="module"></script>
+</body>
+</html>

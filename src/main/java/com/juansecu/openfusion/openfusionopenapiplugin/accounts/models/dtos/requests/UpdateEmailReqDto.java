@@ -22,4 +22,10 @@ public class UpdateEmailReqDto {
         message = AccountsValidationMessages.TOO_LARGE_EMAIL
     )
     private String email;
+    @Size(
+        max = AccountsValidations.MAX_PASSWORD_LENGTH,
+        message = AccountsValidationMessages.INVALID_PASSWORD_LENGTH,
+        min = AccountsValidations.MIN_PASSWORD_LENGTH
+    )
+    private String password;
 }

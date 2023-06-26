@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="https://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
 
     <link rel="icon" type="image/x-icon" th:href="@{/static/images/openfusion-icon.ico}" />
 
     <title
-        th:text="${#messages.msg('login.label') + ' | ' + @environment.getProperty('issuer.name')}"
+        th:text="${#messages.msg('login') + ' | ' + @environment.getProperty('issuer.name')}"
     ></title>
 
     <link rel="stylesheet" th:href="@{/static/css/authentication.css}" />
@@ -27,7 +27,7 @@
             class="logo"
         />
 
-        <h1 th:text="#{login.label}"></h1>
+        <h1 th:text="#{login}"></h1>
 
         <form
             th:action="@{/auth/login}"
@@ -45,7 +45,7 @@
             ></div>
 
             <div
-                th:replace="~{fragments/forms/authentication.html :: password-input}"
+                th:replace="~{fragments/forms/authentication.html :: password-input (isCurrentPassword=false)}"
                 role="separator"
             ></div>
 
@@ -55,7 +55,7 @@
                 class="form__submit-button form__button"
                 disabled="disabled"
             >
-                <span th:text="#{login.label}"></span>
+                <span th:text="#{login}"></span>
             </button>
         </form>
 
@@ -63,7 +63,7 @@
             <span th:text="#{dont-have-an-account}"></span>
 
             <a th:href="@{/auth/register}">
-                <span th:text="${#messages.msg('sign-up.label' ) + ' ' + #messages.msg('here')}"></span>
+                <span th:text="${#messages.msg('sign-up' ) + ' ' + #messages.msg('here')}"></span>
             </a>
         </p>
 

@@ -118,7 +118,7 @@ public class AuthenticationService {
 
         response.addCookie(authenticationCookie);
 
-        return "login";
+        return "redirect:/accounts/email-preferences";
     }
 
     public ResponseEntity<BasicResDto> register(final RegisterReqDto registerReqDto) {

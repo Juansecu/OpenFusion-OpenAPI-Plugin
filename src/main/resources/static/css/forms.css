@@ -1,5 +1,6 @@
 form {
-    width: 70%;
+    display: flex;
+    flex-direction: column;
 }
 
 form div[role=separator]:not(:first-child) {

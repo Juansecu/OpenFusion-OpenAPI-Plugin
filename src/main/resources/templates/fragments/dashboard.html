@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+
+    <title>Dashboard</title>
+</head>
+<body>
+    <aside th:fragment="navigation-bar">
+        <img
+            th:src="@{/static/images/openfusion-hero.png}"
+            th:alt="#{openfusion-logo}"
+            class="logo"
+        />
+
+        <nav>
+            <a
+                th:href="@{/accounts/email-preferences}"
+                th:text="#{email.change-email}"
+                th:classappend="${#strings.equals(requestUri, '/accounts/email-preferences') ? 'active' : ''}"
+            ></a>
+        </nav>
+    </aside>
+</body>
+</html>

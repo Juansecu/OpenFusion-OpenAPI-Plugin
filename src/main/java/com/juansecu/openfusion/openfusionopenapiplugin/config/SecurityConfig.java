@@ -13,13 +13,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.JwtAuthenticationFilter;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.ProtectedViewAgainstAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -30,6 +30,8 @@ public class SecurityConfig {
     private AuthenticationEntryPoint authenticationEntryPoint;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final PasswordEncoder passwordEncoder;
+    private final ProtectedViewAgainstAuthenticationFilter protectedViewAgainstAuthenticationFilter;
     private final UserDetailsService userDetailsService;
 
     @Bean
@@ -44,14 +46,9 @@ public class SecurityConfig {
         final DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
 
         daoAuthenticationProvider.setUserDetailsService(this.userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
+        daoAuthenticationProvider.setPasswordEncoder(this.passwordEncoder);
 
         return daoAuthenticationProvider;
-    }
-
-    @Bean
-    protected PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -78,6 +75,7 @@ public class SecurityConfig {
             .and()
             .authenticationProvider(this.authenticationProvider())
             .addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(this.protectedViewAgainstAuthenticationFilter, JwtAuthenticationFilter.class)
             .exceptionHandling().authenticationEntryPoint(this.authenticationEntryPoint);
 
         return httpSecurity.build();

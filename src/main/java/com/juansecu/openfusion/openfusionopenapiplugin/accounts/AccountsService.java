@@ -1,5 +1,7 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.accounts;
 
+import java.util.Objects;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -7,7 +9,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountServiceError;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdateEmailReqDto;
@@ -33,6 +38,7 @@ public class AccountsService {
     private final IAccountsRepository accountsRepository;
     private final EmailService emailService;
     private final HostDetailsProvider hostDetailsProvider;
+    private final PasswordEncoder passwordEncoder;
     private final VerificationTokensService verificationTokensService;
 
     public AccountEntity getAccountByEmail(final String email) {
@@ -61,7 +67,7 @@ public class AccountsService {
             ((AccountEntity) request.getAttribute("account")).getUsername()
         );
 
-        AccountEntity user;
+        boolean passwordMatches;
         String verificationEmailMessage;
         VerificationTokenEntity verificationToken;
 
@@ -70,12 +76,7 @@ public class AccountsService {
             updateEmailReqDto.getEmail()
         );
 
-        if (
-            accountWithGivenEmail != null &&
-            !accountWithGivenEmail.getUsername().equalsIgnoreCase(
-                account.getUsername()
-            )
-        ) {
+        if (accountWithGivenEmail != null) {
             AccountsService.CONSOLE_LOGGER.info(
                 "Email is already in use"
             );
@@ -91,29 +92,9 @@ public class AccountsService {
             );
         }
 
-        user = this.getAccountByUsername(
-            ((AccountEntity) request.getAttribute("account")).getUsername()
-        );
-
-        if (user == null) {
-            AccountsService.CONSOLE_LOGGER.info(
-                "User not found"
-            );
-
-            return new ResponseEntity<>(
-                new BasicResDto(
-                    false,
-                    EAccountServiceError.USER_NOT_FOUND,
-                    "User not found",
-                    null
-                ),
-                HttpStatus.NOT_FOUND
-            );
-        }
-
         if (
-            user.getEmail().equalsIgnoreCase(updateEmailReqDto.getEmail()) &&
-            user.isVerified()
+            account.getEmail().equalsIgnoreCase(updateEmailReqDto.getEmail()) &&
+            account.isVerified()
         ) {
             AccountsService.CONSOLE_LOGGER.info(
                 "Email is the same than the current one"
@@ -130,14 +111,35 @@ public class AccountsService {
             );
         }
 
-        if (!user.getEmail().equalsIgnoreCase(updateEmailReqDto.getEmail())) {
+        passwordMatches = this.passwordEncoder.matches(
+            updateEmailReqDto.getPassword(),
+            account.getPassword()
+        );
+
+        if (!passwordMatches) {
+            AccountsService.CONSOLE_LOGGER.info(
+                "Password does not match"
+            );
+
+            return new ResponseEntity<>(
+                new BasicResDto(
+                    false,
+                    EAccountServiceError.PASSWORD_DOES_NOT_MATCH,
+                    "Incorrect password",
+                    null
+                ),
+                HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        if (!account.getEmail().equalsIgnoreCase(updateEmailReqDto.getEmail())) {
             AccountsService.CONSOLE_LOGGER.info(
                 "Updating email address..."
             );
 
-            user.setEmail(updateEmailReqDto.getEmail());
+            account.setEmail(updateEmailReqDto.getEmail());
 
-            this.setAccountAsVerified(false, user);
+            this.setAccountAsVerified(false, account);
 
             AccountsService.CONSOLE_LOGGER.info(
                 "Email address updated successfully"
@@ -145,20 +147,20 @@ public class AccountsService {
         }
 
         verificationToken = this.verificationTokensService.generateEmailVerificationToken(
-            user
+            account
         );
         verificationEmailMessage = this.replaceUpdateEmailParameters(
             this.verificationTokensService.getEncryptedToken(
                 verificationToken.getToken().toString()
             ),
-            user.getUsername()
+            account.getUsername()
         );
 
         if (
             !this.emailService.sendSimpleMessage(
                 verificationEmailMessage,
                 this.updateAccountEmailMessageSubject,
-                user.getEmail()
+                account.getEmail()
             )
         ) {
             AccountsService.CONSOLE_LOGGER.info(
@@ -169,7 +171,7 @@ public class AccountsService {
                 new BasicResDto(
                     false,
                     EAccountServiceError.COULD_NOT_SEND_VERIFICATION_EMAIL,
-                    "Verification email could not be sent",
+                    "Internal server error occurred. Please try again later",
                     null
                 ),
                 HttpStatus.INTERNAL_SERVER_ERROR
@@ -184,6 +186,38 @@ public class AccountsService {
                 null
             )
         );
+    }
+
+    public String updateEmail(
+        final UpdateEmailReqDto updateEmailReqDto,
+        final BindingResult bindingResult,
+        final Model model,
+        final HttpServletRequest request
+    ) {
+        if (bindingResult.hasErrors())
+            return "email-preferences";
+
+        final ResponseEntity<BasicResDto> updateEmailResponse = this.updateEmail(
+            updateEmailReqDto,
+            request
+        );
+        final BasicResDto updateEmailResponseBody = updateEmailResponse.getBody();
+
+        if (!Objects.requireNonNull(updateEmailResponseBody).success()) {
+            model.addAttribute(
+                "error",
+                updateEmailResponseBody.message()
+            );
+
+            return "email-preferences";
+        }
+
+        model.addAttribute(
+            "success",
+            "Your email address has been updated successfully. Please check your inbox for the verification email"
+        );
+
+        return "email-preferences";
     }
 
     private String replaceUpdateEmailParameters(
