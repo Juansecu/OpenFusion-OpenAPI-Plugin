@@ -32,7 +32,8 @@ public class ProtectedViewAgainstAuthenticationFilter extends OncePerRequestFilt
         final AntPathRequestMatcher[] excludedMatchers = {
             new AntPathRequestMatcher("/api-docs/**"),
             new AntPathRequestMatcher("/api/auth/**"),
-            new AntPathRequestMatcher("/auth/**"),
+            new AntPathRequestMatcher("/auth/login"),
+            new AntPathRequestMatcher("/auth/register"),
             new AntPathRequestMatcher("/docs"),
             new AntPathRequestMatcher("/favicon.ico"),
             new AntPathRequestMatcher("/static/**"),

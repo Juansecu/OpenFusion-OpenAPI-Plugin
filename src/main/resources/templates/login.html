@@ -39,6 +39,12 @@
 
             <span th:replace="~{fragments/forms/post-submit-messages.html :: post-submit-success}"></span>
 
+            <span
+                th:if="${param.logout}"
+                th:text="#{logout-successful}"
+                class="form__success"
+            ></span>
+
             <div
                 th:replace="~{fragments/forms/authentication.html :: username-input}"
                 role="separator"

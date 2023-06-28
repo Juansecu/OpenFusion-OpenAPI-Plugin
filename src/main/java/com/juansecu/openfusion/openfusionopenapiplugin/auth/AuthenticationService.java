@@ -121,6 +121,24 @@ public class AuthenticationService {
         return "redirect:/accounts/email-preferences";
     }
 
+    public String logout(final HttpServletResponse response) {
+        Cookie authenticationCookie;
+
+        authenticationCookie = new Cookie(
+            AuthenticationService.AUTHENTICATION_COOKIE_NAME,
+            null
+        );
+
+        authenticationCookie.setHttpOnly(true);
+        authenticationCookie.setMaxAge(0);
+        authenticationCookie.setPath("/");
+        authenticationCookie.setSecure(true);
+
+        response.addCookie(authenticationCookie);
+
+        return "redirect:/auth/login?logout=true";
+    }
+
     public ResponseEntity<BasicResDto> register(final RegisterReqDto registerReqDto) {
         AccountEntity newAccount;
         String verificationEmailMessage;

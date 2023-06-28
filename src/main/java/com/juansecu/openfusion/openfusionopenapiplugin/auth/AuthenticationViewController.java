@@ -43,6 +43,13 @@ public class AuthenticationViewController {
         );
     }
 
+    @GetMapping("/logout")
+    public String logout(
+        final HttpServletResponse response
+    ) {
+        return this.authenticationService.logout(response);
+    }
+
     @GetMapping("/register")
     public String register(final RegisterReqDto registerReqDto) {
         return "register";

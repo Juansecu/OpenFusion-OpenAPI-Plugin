@@ -19,6 +19,11 @@
                 th:text="#{email.change-email}"
                 th:classappend="${#strings.equals(requestUri, '/accounts/email-preferences') ? 'active' : ''}"
             ></a>
+
+            <a
+                th:href="@{/auth/logout}"
+                th:text="#{logout}"
+            ></a>
         </nav>
     </aside>
 </body>
