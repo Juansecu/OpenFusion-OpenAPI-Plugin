@@ -34,7 +34,10 @@ OpenAPI definition plugin for [OpenFusion](https://github.com/OpenFusionProject/
 
     - All required environment variables must be set before running the application.
     - Never give environment variable values to non-administrator users, since they could hack your server instance.
-    - You can generate secrets using tools such as [Random Key Gen](https://randomkeygen.com/) or [All Keys Generator](https://www.allkeysgenerator.com/Random/Security-Encryption-Key-Generator.aspx). 256-bit keys are recommended.
+    - You can generate secrets using tools
+      such as [Random Key Gen](https://randomkeygen.com/)
+      or [All Keys Generator](https://www.allkeysgenerator.com/Random/Security-Encryption-Key-Generator.aspx).
+      256-bit keys are recommended.
     - For security reasons, it is recommended to use a dedicated e-mail account to send e-mails.
     - For security reasons, `VERIFICATION_TOKEN_SALT_KEY` and `VERIFICATION_TOKEN_SECURITY_KEY` must be different from each other.
 
@@ -49,3 +52,15 @@ The API documentation is available at the endpoint `/docs`.
 ## User Interface
 
 The user interface is available at the endpoint `/auth/register`.
+
+## Special Thanks
+
+- **CakeCancelot** - For clarifying some doubts about the differences
+  between OpenFusion Future version and OpenFusion Academy version databases,
+  how the permissions system works in OpenFusion
+  and validations for user input
+- **Ege_E・The Aegean** - For clarifying some doubts about the use of OpenFusion graphical assets
+- **Finn Hornhoover** - For providing information about how time stuff works in OpenFusion
+- **Jade** - For providing information about how the banning system works in OpenFusion
+- **Ninjser** - For providing initial stuff for user interface
+- **TomTheHuman** - For providing the hologram character from OpenFusion
