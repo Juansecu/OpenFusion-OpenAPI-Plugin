@@ -2,13 +2,9 @@ package com.juansecu.openfusion.openfusionopenapiplugin.auth.filters;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,26 +12,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.juansecu.openfusion.openfusionopenapiplugin.auth.AuthenticationService;
-import com.juansecu.openfusion.openfusionopenapiplugin.shared.adapters.JwtAdapter;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.AuthenticationDetails;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.utils.JwtAuthenticationValidationUtil;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(JwtAuthenticationFilter.class);
-    private static final String JWT_AUTHENTICATION_HEADER = "Authorization";
-    private static final String JWT_AUTHENTICATION_HEADER_PREFIX = "Bearer ";
-    private static final String TOKEN_PATTERN = "([0-9a-z_=]+)\\.([0-9a-z_=]+)\\.([0-9a-z_\\-+/=]+)";
-
-    private final JwtAdapter jwtAdapter;
-    private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationValidationUtil jwtAuthenticationValidationUtil;
 
     @Override
     protected void doFilterInternal(
@@ -43,32 +33,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final HttpServletResponse response,
         final FilterChain filterChain
     ) throws IOException, ServletException {
-        UserDetails account;
+        AccountEntity account;
         UsernamePasswordAuthenticationToken authenticationToken;
-        String token;
         String username;
 
-        final Cookie authenticationCookie = Arrays
-            .stream(
-                Objects.requireNonNullElse(
-                    request.getCookies(),
-                    new Cookie[0]
-                )
-            )
-            .filter(cookie -> cookie.getName().equals(AuthenticationService.AUTHENTICATION_COOKIE_NAME))
-            .findFirst()
-            .orElse(null);
-        final String authenticationHeaderValue = request.getHeader(
-            JwtAuthenticationFilter.JWT_AUTHENTICATION_HEADER
-        );
-        final boolean isValidAuthenticationCookie = this.isValidToken(
-            authenticationCookie
-        );
-        final boolean isValidAuthenticationHeaderValue = this.isValidToken(
-            authenticationHeaderValue
+        final AuthenticationDetails authenticationDetails = this.jwtAuthenticationValidationUtil.validateAuthentication(
+            request
         );
 
-        if (!isValidAuthenticationCookie && !isValidAuthenticationHeaderValue) {
+        if (authenticationDetails == null) {
             JwtAuthenticationFilter.CONSOLE_LOGGER.error(
                 "Invalid JSON Web Token"
             );
@@ -78,25 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (isValidAuthenticationCookie) {
-            token = Objects.requireNonNull(authenticationCookie).getValue();
-        } else {
-            token = authenticationHeaderValue.substring(
-                JwtAuthenticationFilter.JWT_AUTHENTICATION_HEADER_PREFIX.length()
-            );
-        }
-
-        username = this.jwtAdapter.getSubject(token);
-
-        if (username == null) {
-            JwtAuthenticationFilter.CONSOLE_LOGGER.error(
-                "Invalid JSON Web Token"
-            );
-
-            filterChain.doFilter(request, response);
-
-            return;
-        }
+        username = authenticationDetails.account().getUsername();
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             JwtAuthenticationFilter.CONSOLE_LOGGER.info(
@@ -109,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        account = this.userDetailsService.loadUserByUsername(username);
+        account = authenticationDetails.account();
 
         JwtAuthenticationFilter.CONSOLE_LOGGER.info(
             "Authenticating user {}...",
@@ -152,69 +107,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             .anyMatch(
                 (AntPathRequestMatcher matcher) -> matcher.matches(request)
             );
-    }
-
-    private boolean isValidToken(final Cookie authenticationCookie) {
-        if (authenticationCookie == null) {
-            JwtAuthenticationFilter.CONSOLE_LOGGER.error(
-                "Authentication cookie is not present"
-            );
-
-            return false;
-        }
-
-        final String token = authenticationCookie.getValue();
-        final Pattern pattern = Pattern.compile(
-            "^" +
-                JwtAuthenticationFilter.TOKEN_PATTERN +
-                "$",
-            Pattern.CASE_INSENSITIVE
-        );
-        final Matcher matcher = pattern.matcher(token);
-
-        if(!matcher.find()) {
-            JwtAuthenticationFilter.CONSOLE_LOGGER.error(
-                "Invalid authentication cookie value"
-            );
-
-            return false;
-        }
-
-        return this.jwtAdapter.isValidJsonWebToken(token);
-    }
-
-    private boolean isValidToken(final String authenticationHeaderValue) {
-        if (authenticationHeaderValue == null) {
-            JwtAuthenticationFilter.CONSOLE_LOGGER.error(
-                "Authentication header is not present"
-            );
-
-            return false;
-        }
-
-        String token;
-
-        final Pattern pattern = Pattern.compile(
-            "^" +
-                JwtAuthenticationFilter.JWT_AUTHENTICATION_HEADER_PREFIX +
-                JwtAuthenticationFilter.TOKEN_PATTERN +
-                "$",
-            Pattern.CASE_INSENSITIVE
-        );
-        final Matcher matcher = pattern.matcher(authenticationHeaderValue);
-
-        if(!matcher.find()) {
-            JwtAuthenticationFilter.CONSOLE_LOGGER.error(
-                "Invalid authentication header value"
-            );
-
-            return false;
-        }
-
-        token = authenticationHeaderValue.substring(
-            JWT_AUTHENTICATION_HEADER_PREFIX.length()
-        );
-
-        return this.jwtAdapter.isValidJsonWebToken(token);
     }
 }

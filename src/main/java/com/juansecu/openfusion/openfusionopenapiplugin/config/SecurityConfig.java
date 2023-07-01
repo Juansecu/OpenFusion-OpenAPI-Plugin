@@ -19,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.JwtAuthenticationFilter;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.ProtectedViewAgainstAuthenticatedUserFilter;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.ProtectedViewAgainstAuthenticationFilter;
 
 @Configuration
@@ -31,6 +32,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final PasswordEncoder passwordEncoder;
+    private final ProtectedViewAgainstAuthenticatedUserFilter protectedViewAgainstAuthenticatedUserFilter;
     private final ProtectedViewAgainstAuthenticationFilter protectedViewAgainstAuthenticationFilter;
     private final UserDetailsService userDetailsService;
 
@@ -75,8 +77,18 @@ public class SecurityConfig {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authenticationProvider(this.authenticationProvider())
-            .addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(this.protectedViewAgainstAuthenticationFilter, JwtAuthenticationFilter.class)
+            .addFilterBefore(
+                this.jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class
+            )
+            .addFilterAfter(
+                this.protectedViewAgainstAuthenticationFilter,
+                JwtAuthenticationFilter.class
+            )
+            .addFilterAfter(
+                this.protectedViewAgainstAuthenticatedUserFilter,
+                ProtectedViewAgainstAuthenticationFilter.class
+            )
             .exceptionHandling().authenticationEntryPoint(this.authenticationEntryPoint);
 
         return httpSecurity.build();
