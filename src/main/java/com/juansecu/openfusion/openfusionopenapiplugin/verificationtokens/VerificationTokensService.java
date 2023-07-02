@@ -7,15 +7,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
-import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.utils.CryptoUtil;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.utils.TimeUtil;
-import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenServiceError;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenType;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.models.entities.VerificationTokenEntity;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.repositories.IVerificationTokensRepository;
@@ -67,7 +63,7 @@ public class VerificationTokensService {
         return this.cryptoUtil.encrypt(decryptedToken);
     }
 
-    public ResponseEntity<BasicResDto> verifyToken(
+    public void verifyToken(
         final EVerificationTokenType verificationTokenType,
         final String username,
         final HttpServletRequest request
@@ -97,15 +93,7 @@ public class VerificationTokensService {
                 true
             );
 
-            return new ResponseEntity<>(
-                new BasicResDto(
-                    false,
-                    EVerificationTokenServiceError.TOKEN_NOT_FOUND,
-                    "Verification token not found",
-                    null
-                ),
-                HttpStatus.NOT_FOUND
-            );
+            return;
         }
 
         if (
@@ -122,15 +110,7 @@ public class VerificationTokensService {
                 true
             );
 
-            return new ResponseEntity<>(
-                new BasicResDto(
-                    false,
-                    EVerificationTokenServiceError.TOKEN_EXPIRED,
-                    "Verification token expired",
-                    null
-                ),
-                HttpStatus.BAD_REQUEST
-            );
+            return;
         }
 
         VerificationTokensService.CONSOLE_LOGGER.info(
@@ -140,16 +120,6 @@ public class VerificationTokensService {
         request.setAttribute(
             VerificationTokensService.IS_INVALID_TOKEN_ATTRIBUTE_KEY,
             false
-        );
-
-        return new ResponseEntity<>(
-            new BasicResDto(
-                true,
-                null,
-                "Verification token validated successfully",
-                null
-            ),
-            HttpStatus.OK
         );
     }
 }

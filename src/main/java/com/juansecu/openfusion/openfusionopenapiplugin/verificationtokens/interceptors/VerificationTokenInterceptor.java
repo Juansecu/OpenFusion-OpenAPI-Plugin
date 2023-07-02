@@ -1,24 +1,22 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.interceptors;
 
+import java.io.IOException;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.AccountsService;
-import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountServiceError;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
-import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.AuthenticationDetails;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.utils.JwtAuthenticationValidationUtil;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.utils.CryptoUtil;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.VerificationTokensService;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenType;
@@ -30,7 +28,7 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
 
     private final AccountsService accountsService;
     private final CryptoUtil cryptoUtil;
-    private final ObjectMapper objectMapper;
+    private final JwtAuthenticationValidationUtil jwtAuthenticationValidationUtil;
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -39,12 +37,13 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
         final HttpServletResponse response,
         final Object handler,
         final ModelAndView modelAndView
-    ) {
+    ) throws Exception {
         VerificationTokenInterceptor.CONSOLE_LOGGER.info(
             "Post-intercepting token verification request..."
         );
 
         final AccountEntity account = (AccountEntity) request.getAttribute("account");
+        final boolean isAuthenticated = (boolean) request.getAttribute("isAuthenticated");
         final boolean isInvalidToken = (boolean) request.getAttribute(
             VerificationTokensService.IS_INVALID_TOKEN_ATTRIBUTE_KEY
         );
@@ -53,8 +52,13 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
         );
 
         if (isInvalidToken) {
-            // TODO: Create a view for invalid token
-            //modelAndView.setViewName("redirect:/verification-tokens/invalid");
+            this.redirect(
+                isAuthenticated,
+                true,
+                "Invalid token",
+                response
+            );
+
             return;
         }
 
@@ -73,8 +77,12 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
                 account.getUsername()
             );
 
-            // TODO: Create a view for verified token
-            //modelAndView.setViewName("redirect:/verification-tokens/verified");
+            this.redirect(
+                isAuthenticated,
+                false,
+                "Your account has been verified successfully",
+                response
+            );
         }
     }
 
@@ -88,31 +96,75 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
             "Pre-intercepting token verification request..."
         );
 
-        final AccountEntity account = (AccountEntity) this.userDetailsService.loadUserByUsername(
-            request.getParameter("username")
-        );
-        final UUID decryptedToken = UUID.fromString(
-            this.cryptoUtil.decrypt(request.getParameter("token"))
-        );
+        AccountEntity account;
+        UUID decryptedToken;
+        EVerificationTokenType verificationTokenType;
 
-        if (account.isVerified()) {
+        final AuthenticationDetails authenticationDetails = this.jwtAuthenticationValidationUtil.validateAuthentication(
+            request
+        );
+        final boolean isAuthenticationValid = authenticationDetails != null;
+        final String username = request.getParameter("username");
+
+        request.setAttribute("isAuthenticated", isAuthenticationValid);
+
+        if (isAuthenticationValid) {
+            if (!authenticationDetails.account().getUsername().equals(username)) {
+                VerificationTokenInterceptor.CONSOLE_LOGGER.error(
+                    "Account username does not match with the username in the request, redirecting..."
+                );
+
+                response.sendRedirect(
+                    "/accounts/email-preferences?error=Invalid token"
+                );
+
+                return false;
+            }
+
+            account = authenticationDetails.account();
+        } else
+            account = (AccountEntity) this.userDetailsService.loadUserByUsername(
+                username
+            );
+
+        try {
+            decryptedToken = UUID.fromString(
+                this.cryptoUtil.decrypt(
+                    request.getParameter("token")
+                )
+            );
+            verificationTokenType = EVerificationTokenType.valueOf(
+                request.getParameter("type")
+            );
+        } catch (final IllegalArgumentException illegalArgumentException) {
+            VerificationTokenInterceptor.CONSOLE_LOGGER.error(
+                "Token type or encrypted token is invalid, redirecting..."
+            );
+
+            this.redirect(
+                isAuthenticationValid,
+                true,
+                "Invalid token",
+                response
+            );
+
+            return false;
+        }
+
+        if (
+            account.isVerified() &&
+            verificationTokenType == EVerificationTokenType.EMAIL_VERIFICATION_TOKEN
+        ) {
             VerificationTokenInterceptor.CONSOLE_LOGGER.info(
                 "{}'s account is already verified...",
                 account.getUsername()
             );
 
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setStatus(HttpStatus.UNPROCESSABLE_ENTITY.value());
-
-            response.getWriter().write(
-                this.objectMapper.writeValueAsString(
-                    new BasicResDto(
-                        false,
-                        EAccountServiceError.ACCOUNT_ALREADY_VERIFIED,
-                        "Account is already verified",
-                        null
-                    )
-                )
+            this.redirect(
+                isAuthenticationValid,
+                true,
+                "Your account is already verified",
+                response
             );
 
             return false;
@@ -122,5 +174,40 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
         request.setAttribute("decryptedToken", decryptedToken);
 
         return true;
+    }
+
+    private void redirect(
+        final boolean isAuthenticated,
+        final boolean isInvalidToken,
+        final String message,
+        final HttpServletResponse response
+    ) throws IOException {
+        if (!isAuthenticated) {
+            if (isInvalidToken) {
+                response.sendRedirect(
+                    "/auth/login?error=" + message
+                );
+
+                return;
+            }
+
+            response.sendRedirect(
+                "/auth/login?success=" + message
+            );
+
+            return;
+        }
+
+        if (isInvalidToken) {
+            response.sendRedirect(
+                "/accounts/email-preferences?error=" + message
+            );
+
+            return;
+        }
+
+        response.sendRedirect(
+            "/accounts/email-preferences?success=" + message
+        );
     }
 }
