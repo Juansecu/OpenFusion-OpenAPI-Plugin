@@ -16,6 +16,7 @@ import org.springframework.validation.BindingResult;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountServiceError;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdateEmailReqDto;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdatePasswordReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.repositories.IAccountsRepository;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
@@ -218,6 +219,79 @@ public class AccountsService {
         );
 
         return "email-preferences";
+    }
+
+    public ResponseEntity<BasicResDto> updatePassword(
+        final UpdatePasswordReqDto updatePasswordReqDto,
+        final HttpServletRequest request
+    ) {
+        AccountsService.CONSOLE_LOGGER.info(
+            "Updating password for user {}...",
+            ((AccountEntity) request.getAttribute("account")).getUsername()
+        );
+
+        final AccountEntity account = (AccountEntity) request.getAttribute("account");
+        final boolean isSamePassword = this.passwordEncoder.matches(
+            updatePasswordReqDto.getNewPassword(),
+            account.getPassword()
+        );
+        final boolean passwordMatches = this.passwordEncoder.matches(
+            updatePasswordReqDto.getCurrentPassword(),
+            account.getPassword()
+        );
+
+        if (!passwordMatches) {
+            AccountsService.CONSOLE_LOGGER.info(
+                "Current password does not match"
+            );
+
+            return new ResponseEntity<>(
+                new BasicResDto(
+                    false,
+                    EAccountServiceError.PASSWORD_DOES_NOT_MATCH,
+                    "Wrong current password",
+                    null
+                ),
+                HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        if (isSamePassword) {
+            AccountsService.CONSOLE_LOGGER.info(
+                "New password is the same than the current one"
+            );
+
+            return new ResponseEntity<>(
+                new BasicResDto(
+                    false,
+                    EAccountServiceError.SAME_PASSWORD,
+                    "New password cannot be the same than the current one",
+                    null
+                ),
+                HttpStatus.CONFLICT
+            );
+        }
+
+        account.setPassword(
+            this.passwordEncoder.encode(
+                updatePasswordReqDto.getNewPassword()
+            )
+        );
+
+        this.accountsRepository.save(account);
+
+        AccountsService.CONSOLE_LOGGER.info(
+            "Password updated successfully"
+        );
+
+        return ResponseEntity.ok(
+            new BasicResDto(
+                true,
+                null,
+                "Password updated successfully",
+                null
+            )
+        );
     }
 
     private String replaceUpdateEmailParameters(
