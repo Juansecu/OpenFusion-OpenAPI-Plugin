@@ -89,7 +89,7 @@ export function checkPassword(event) {
     const passwordValidationResult = validatePassword(passwordInput.value);
 
     if (!passwordValidationResult.isValid) {
-        if (passwordPostErrors) emailPostErrors.textContent = '';
+        if (passwordPostErrors) passwordPostErrors.textContent = '';
 
         passwordInput.classList.remove('is-valid');
         passwordInput.classList.add('is-invalid');
@@ -101,8 +101,8 @@ export function checkPassword(event) {
 
     passwordError.textContent = '';
 
-    event.target.classList.remove('is-invalid');
-    event.target.classList.add('is-valid');
+    passwordInput.classList.remove('is-invalid');
+    passwordInput.classList.add('is-valid');
 }
 
 export function checkPasswordConfirmation(event) {

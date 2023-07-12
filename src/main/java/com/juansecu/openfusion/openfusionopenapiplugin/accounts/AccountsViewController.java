@@ -1,6 +1,7 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.accounts;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,11 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdateEmailReqDto;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdatePasswordReqDto;
 
 @Controller
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
 public class AccountsViewController {
+    private static final String REQUEST_URI_REQUEST_ATTRIBUTE = "requestUri";
+
     private final AccountsService accountsService;
 
     @GetMapping("/email-preferences")
@@ -24,7 +28,7 @@ public class AccountsViewController {
         final HttpServletRequest request
     ) {
         model.addAttribute(
-            "requestUri",
+            AccountsViewController.REQUEST_URI_REQUEST_ATTRIBUTE,
             request.getRequestURI()
         );
 
@@ -36,18 +40,57 @@ public class AccountsViewController {
         path = "/email-preferences"
     )
     public String updateEmail(
+        @Valid
         final UpdateEmailReqDto updateEmailReqDto,
         final BindingResult bindingResult,
         final Model model,
         final HttpServletRequest request
     ) {
         model.addAttribute(
-            "requestUri",
+            AccountsViewController.REQUEST_URI_REQUEST_ATTRIBUTE,
             request.getRequestURI()
         );
 
         return this.accountsService.updateEmail(
             updateEmailReqDto,
+            bindingResult,
+            model,
+            request
+        );
+    }
+
+    @GetMapping("/change-password")
+    public String updatePassword(
+        final UpdatePasswordReqDto updatePasswordReqDto,
+        final Model model,
+        final HttpServletRequest request
+    ) {
+        model.addAttribute(
+            AccountsViewController.REQUEST_URI_REQUEST_ATTRIBUTE,
+            request.getRequestURI()
+        );
+
+        return "change-password";
+    }
+
+    @PostMapping(
+        consumes = "application/x-www-form-urlencoded",
+        path = "/change-password"
+    )
+    public String updatePassword(
+        @Valid
+        final UpdatePasswordReqDto updatePasswordReqDto,
+        final BindingResult bindingResult,
+        final Model model,
+        final HttpServletRequest request
+    ) {
+        model.addAttribute(
+            AccountsViewController.REQUEST_URI_REQUEST_ATTRIBUTE,
+            request.getRequestURI()
+        );
+
+        return this.accountsService.updatePassword(
+            updatePasswordReqDto,
             bindingResult,
             model,
             request

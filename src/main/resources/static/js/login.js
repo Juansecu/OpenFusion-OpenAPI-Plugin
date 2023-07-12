@@ -9,7 +9,7 @@ import {
 
 password.addEventListener('input', checkPassword);
 
-loginForm.addEventListener('input', (event) => {
+loginForm.addEventListener('input', event => {
     const passwordValidationResult = validatePassword(loginForm['password'].value);
     const usernameValidationResult = validateUsername(loginForm['username'].value);
     const invalidInputs = [

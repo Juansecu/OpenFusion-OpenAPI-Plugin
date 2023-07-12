@@ -27,5 +27,5 @@ public class UpdateEmailReqDto {
         message = AccountsValidationMessages.INVALID_PASSWORD_LENGTH,
         min = AccountsValidations.MIN_PASSWORD_LENGTH
     )
-    private String password;
+    private String currentPassword;
 }

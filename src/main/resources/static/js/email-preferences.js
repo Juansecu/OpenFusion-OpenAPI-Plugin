@@ -13,7 +13,7 @@ email.addEventListener('input', checkEmailWithConfirmation);
 
 emailConfirmation.addEventListener('input', checkEmailConfirmation);
 
-password.addEventListener('input', checkPassword);
+currentPassword.addEventListener('input', checkPassword);
 
 updateEmailForm.addEventListener('input', (event) => {
     const emailValidationResult = validateEmail(updateEmailForm['email'].value);
@@ -21,7 +21,7 @@ updateEmailForm.addEventListener('input', (event) => {
         updateEmailForm['email'].value,
         updateEmailForm['emailConfirmation'].value
     );
-    const passwordValidationResult = validatePassword(updateEmailForm['password'].value);
+    const passwordValidationResult = validatePassword(updateEmailForm['currentPassword'].value);
     const invalidInputs = [
         emailValidationResult,
         emailConfirmationValidationResult,

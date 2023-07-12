@@ -7,14 +7,14 @@
 </head>
 <body>
     <div th:fragment="password-input (isCurrentPassword)" role="separator">
-        <label for="password" class="form__label">
+        <label th:for="${isCurrentPassword ? 'currentPassword' : 'password'}" class="form__label">
             <span th:text="${isCurrentPassword ? #messages.msg('password.current-password') : #messages.msg('password.label')}"></span>
         </label>
 
         <input
             type="password"
-            th:field="*{password}"
-            id="password"
+            th:field="*{__${isCurrentPassword ? 'currentPassword' : 'password'}__}"
+            th:id="${isCurrentPassword ? 'currentPassword' : 'password'}"
             maxlength="32"
             minlength="8"
             class="form__input"
@@ -26,8 +26,8 @@
 
         <div
             role="alert"
-            th:if="${#fields.hasErrors('password')}"
-            th:errors="*{password}"
+            th:if="${#fields.hasErrors(isCurrentPassword ? 'currentPassword' : 'password')}"
+            th:errors="*{__${isCurrentPassword ? 'currentPassword' : 'password'}__}"
             id="passwordPostErrors"
             class="form__input-error"
         ></div>

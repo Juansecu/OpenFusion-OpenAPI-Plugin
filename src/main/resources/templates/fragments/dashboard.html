@@ -21,6 +21,12 @@
             ></a>
 
             <a
+                th:href="@{/accounts/change-password}"
+                th:text="#{password.change-password}"
+                th:classappend="${#strings.equals(requestUri, '/accounts/change-password') ? 'active' : ''}"
+            ></a>
+
+            <a
                 th:href="@{/auth/logout}"
                 th:text="#{logout}"
             ></a>

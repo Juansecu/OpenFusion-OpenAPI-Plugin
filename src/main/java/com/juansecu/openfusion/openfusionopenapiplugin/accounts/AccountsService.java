@@ -113,7 +113,7 @@ public class AccountsService {
         }
 
         passwordMatches = this.passwordEncoder.matches(
-            updateEmailReqDto.getPassword(),
+            updateEmailReqDto.getCurrentPassword(),
             account.getPassword()
         );
 
@@ -292,6 +292,38 @@ public class AccountsService {
                 null
             )
         );
+    }
+
+    public String updatePassword(
+        final UpdatePasswordReqDto updatePasswordReqDto,
+        final BindingResult bindingResult,
+        final Model model,
+        final HttpServletRequest request
+    ) {
+        if (bindingResult.hasErrors())
+            return "change-password";
+
+        final ResponseEntity<BasicResDto> updatePasswordResponse = this.updatePassword(
+            updatePasswordReqDto,
+            request
+        );
+        final BasicResDto updatePasswordResponseBody = updatePasswordResponse.getBody();
+
+        if (!Objects.requireNonNull(updatePasswordResponseBody).success()) {
+            model.addAttribute(
+                "error",
+                updatePasswordResponseBody.message()
+            );
+
+            return "change-password";
+        }
+
+        model.addAttribute(
+            "success",
+            "Your password has been updated successfully"
+        );
+
+        return "change-password";
     }
 
     private String replaceUpdateEmailParameters(
