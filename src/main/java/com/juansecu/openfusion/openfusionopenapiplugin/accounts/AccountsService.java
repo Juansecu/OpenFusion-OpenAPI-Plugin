@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,32 +15,21 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountServiceError;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.EmailUpdateEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdateEmailReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdatePasswordReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.repositories.IAccountsRepository;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
-import com.juansecu.openfusion.openfusionopenapiplugin.shared.providers.HostDetailsProvider;
-import com.juansecu.openfusion.openfusionopenapiplugin.shared.services.EmailService;
-import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.VerificationTokensService;
-import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenType;
-import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.models.entities.VerificationTokenEntity;
 
 @RequiredArgsConstructor
 @Service
 public class AccountsService {
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(AccountsService.class);
 
-    @Value("${mail.update-account-email-verification-message.message}")
-    private String updateAccountEmailMessage;
-    @Value("${mail.update-account-email-verification-message.subject}")
-    private String updateAccountEmailMessageSubject;
-
     private final IAccountsRepository accountsRepository;
-    private final EmailService emailService;
-    private final HostDetailsProvider hostDetailsProvider;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
-    private final VerificationTokensService verificationTokensService;
 
     public AccountEntity getAccountByEmail(final String email) {
         return this.accountsRepository
@@ -69,8 +58,6 @@ public class AccountsService {
         );
 
         boolean passwordMatches;
-        String verificationEmailMessage;
-        VerificationTokenEntity verificationToken;
 
         final AccountEntity account = (AccountEntity) request.getAttribute("account");
         final AccountEntity accountWithGivenEmail = this.getAccountByEmail(
@@ -147,37 +134,9 @@ public class AccountsService {
             );
         }
 
-        verificationToken = this.verificationTokensService.generateEmailVerificationToken(
-            account
+        this.applicationEventPublisher.publishEvent(
+            new EmailUpdateEvent(account)
         );
-        verificationEmailMessage = this.replaceUpdateEmailParameters(
-            this.verificationTokensService.getEncryptedToken(
-                verificationToken.getToken().toString()
-            ),
-            account.getUsername()
-        );
-
-        if (
-            !this.emailService.sendSimpleMessage(
-                verificationEmailMessage,
-                this.updateAccountEmailMessageSubject,
-                account.getEmail()
-            )
-        ) {
-            AccountsService.CONSOLE_LOGGER.info(
-                "Verification email could not be sent"
-            );
-
-            return new ResponseEntity<>(
-                new BasicResDto(
-                    false,
-                    EAccountServiceError.COULD_NOT_SEND_VERIFICATION_EMAIL,
-                    "Internal server error occurred. Please try again later",
-                    null
-                ),
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
 
         return ResponseEntity.ok(
             new BasicResDto(
@@ -324,29 +283,5 @@ public class AccountsService {
         );
 
         return "change-password";
-    }
-
-    private String replaceUpdateEmailParameters(
-        final String encryptedToken,
-        final String username
-    ) {
-        return this.updateAccountEmailMessage
-            .replace(
-                "{hours_to_expire}",
-                String.valueOf(
-                    VerificationTokensService.HOURS_OF_EXPIRING_EMAIL_VERIFICATION_TOKEN
-                )
-            )
-            .replace(
-                "{update_email_link}",
-                this.hostDetailsProvider.getHostPath() +
-                    "/api/verification-tokens/verify?token=" +
-                    encryptedToken +
-                    "&type=" +
-                    EVerificationTokenType.EMAIL_VERIFICATION_TOKEN +
-                    "&username=" +
-                    username
-            )
-            .replace("{username}", username);
     }
 }
