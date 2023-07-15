@@ -4,11 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.DeleteAccountReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdateEmailReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdatePasswordReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
@@ -18,6 +16,19 @@ import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.respon
 @RestController
 public class AccountsApiController {
     private final AccountsService accountsService;
+
+    @DeleteMapping
+    public ResponseEntity<BasicResDto> delete(
+        @RequestBody
+        @Valid
+        final DeleteAccountReqDto deleteAccountReqDto,
+        final HttpServletRequest request
+    ) {
+        return this.accountsService.deleteAccount(
+            deleteAccountReqDto,
+            request
+        );
+    }
 
     @PutMapping("/update-email")
     public ResponseEntity<BasicResDto> updateEmail(

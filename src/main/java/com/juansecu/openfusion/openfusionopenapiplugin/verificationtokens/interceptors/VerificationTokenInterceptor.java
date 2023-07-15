@@ -8,12 +8,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.AccountsService;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.AccountDeleteRequestVerifiedEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.AuthenticationDetails;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.utils.JwtAuthenticationValidationUtil;
@@ -27,6 +29,7 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(VerificationTokenInterceptor.class);
 
     private final AccountsService accountsService;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final CryptoUtil cryptoUtil;
     private final JwtAuthenticationValidationUtil jwtAuthenticationValidationUtil;
     private final UserDetailsService userDetailsService;
@@ -62,7 +65,18 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
             return;
         }
 
-        if (verificationTokenType == EVerificationTokenType.EMAIL_VERIFICATION_TOKEN) {
+        if (verificationTokenType == EVerificationTokenType.DELETE_ACCOUNT_TOKEN) {
+            this.applicationEventPublisher.publishEvent(
+                new AccountDeleteRequestVerifiedEvent(account)
+            );
+
+            this.redirect(
+                isAuthenticated,
+                false,
+                "Your account has been deleted successfully",
+                response
+            );
+        } else if (verificationTokenType == EVerificationTokenType.EMAIL_VERIFICATION_TOKEN) {
             VerificationTokenInterceptor.CONSOLE_LOGGER.info(
                 "Setting {}'s account as verified...",
                 account.getUsername()

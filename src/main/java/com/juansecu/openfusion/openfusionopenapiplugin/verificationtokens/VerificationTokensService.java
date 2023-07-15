@@ -21,11 +21,44 @@ import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.reposi
 public class VerificationTokensService {
     public static final int HOURS_OF_EXPIRING_EMAIL_VERIFICATION_TOKEN = 24;
     public static final String IS_INVALID_TOKEN_ATTRIBUTE_KEY = "isInvalidToken";
+    public static final int MINUTES_OF_EXPIRING_DELETE_ACCOUNT_TOKEN = 10;
 
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(VerificationTokensService.class);
 
     private final CryptoUtil cryptoUtil;
     private final IVerificationTokensRepository verificationTokensRepository;
+
+    public VerificationTokenEntity generateDeleteAccountToken(
+        final AccountEntity account
+    ) {
+        VerificationTokensService.CONSOLE_LOGGER.info(
+            "Generating {}...",
+            EVerificationTokenType.DELETE_ACCOUNT_TOKEN
+        );
+
+        final UUID token = UUID.randomUUID();
+        final LocalDateTime tokenExpirationDateTime = LocalDateTime
+            .now()
+            .plusMinutes(
+                VerificationTokensService.MINUTES_OF_EXPIRING_DELETE_ACCOUNT_TOKEN
+            );
+        final long tokenExpirationSeconds = TimeUtil.localDateTimeToSeconds(
+            tokenExpirationDateTime
+        );
+        final VerificationTokenEntity verificationToken = new VerificationTokenEntity(
+            token,
+            EVerificationTokenType.DELETE_ACCOUNT_TOKEN,
+            account,
+            tokenExpirationSeconds
+        );
+
+        VerificationTokensService.CONSOLE_LOGGER.info(
+            "Saving {}...",
+            EVerificationTokenType.DELETE_ACCOUNT_TOKEN
+        );
+
+        return this.verificationTokensRepository.save(verificationToken);
+    }
 
     public VerificationTokenEntity generateEmailVerificationToken(
         final AccountEntity account

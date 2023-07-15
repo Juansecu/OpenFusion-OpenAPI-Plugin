@@ -15,7 +15,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountServiceError;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.AccountDeleteRequestProcessedEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.EmailUpdateEvent;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.DeleteAccountReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdateEmailReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdatePasswordReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
@@ -30,6 +32,74 @@ public class AccountsService {
     private final IAccountsRepository accountsRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final PasswordEncoder passwordEncoder;
+
+    public ResponseEntity<BasicResDto> deleteAccount(
+        final DeleteAccountReqDto deleteAccountReqDto,
+        final HttpServletRequest request
+    ) {
+        AccountsService.CONSOLE_LOGGER.info(
+            "Deleting account for user {}...",
+            ((AccountEntity) request.getAttribute("account")).getUsername()
+        );
+
+        final AccountEntity account = (AccountEntity) request.getAttribute("account");
+        final boolean passwordMatches = this.passwordEncoder.matches(
+            deleteAccountReqDto.getCurrentPassword(),
+            account.getPassword()
+        );
+
+        if (account.getEmail().isBlank() || !account.isVerified()) {
+            AccountsService.CONSOLE_LOGGER.error(
+                "{}'s account is not verified",
+                account.getUsername()
+            );
+
+            return new ResponseEntity<>(
+                new BasicResDto(
+                    false,
+                    EAccountServiceError.ACCOUNT_NOT_VERIFIED,
+                    "Account is not verified",
+                    null
+                ),
+                HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        if (!passwordMatches) {
+            AccountsService.CONSOLE_LOGGER.error(
+                "Password does not match"
+            );
+
+            return new ResponseEntity<>(
+                new BasicResDto(
+                    false,
+                    EAccountServiceError.PASSWORD_DOES_NOT_MATCH,
+                    "Incorrect password",
+                    null
+                ),
+                HttpStatus.UNAUTHORIZED
+            );
+        }
+
+        this.applicationEventPublisher.publishEvent(
+            new AccountDeleteRequestProcessedEvent(account)
+        );
+
+        AccountsService.CONSOLE_LOGGER.info(
+            "Account delete request for user {} was processed successfully",
+            account.getUsername()
+        );
+
+        return new ResponseEntity<>(
+            new BasicResDto(
+                true,
+                null,
+                "Account delete request was processed successfully. Verification email sent",
+                null
+            ),
+            HttpStatus.OK
+        );
+    }
 
     public AccountEntity getAccountByEmail(final String email) {
         return this.accountsRepository

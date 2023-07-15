@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.AccountRegisterEvent;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.AccountDeleteRequestProcessedEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.providers.HostDetailsProvider;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.services.EmailService;
@@ -17,50 +17,52 @@ import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.models
 
 @Component
 @RequiredArgsConstructor
-public class AccountRegisterListener implements ApplicationListener<AccountRegisterEvent> {
-    private static final Logger CONSOLE_LOGGER = LogManager.getLogger(AccountRegisterListener.class);
+public class AccountDeleteRequestProcessedListener implements ApplicationListener<AccountDeleteRequestProcessedEvent> {
+    private static final Logger CONSOLE_LOGGER = LogManager.getLogger(AccountDeleteRequestProcessedListener.class);
 
-    @Value("${mail.new-account-email-verification-message.message}")
-    private String newAccountEmailVerificationMessage;
-    @Value("${mail.new-account-email-verification-message.subject}")
-    private String newAccountEmailVerificationSubject;
+    @Value("${mail.delete-account.request-message.message}")
+    private String deleteAccountRequestMessage;
+    @Value("${mail.delete-account.request-message.subject}")
+    private String deleteAccountRequestSubject;
 
     private final EmailService emailService;
     private final HostDetailsProvider hostDetailsProvider;
     private final VerificationTokensService verificationTokensService;
 
     @Override
-    public void onApplicationEvent(final AccountRegisterEvent accountRegisterEvent) {
-        final AccountEntity newAccount = accountRegisterEvent.getAccount();
-        final VerificationTokenEntity verificationToken = this.verificationTokensService.generateEmailVerificationToken(
-            newAccount
+    public void onApplicationEvent(
+        final AccountDeleteRequestProcessedEvent accountDeleteRequestProcessedEvent
+    ) {
+        final AccountEntity account = accountDeleteRequestProcessedEvent.getAccount();
+        final VerificationTokenEntity verificationToken = this.verificationTokensService.generateDeleteAccountToken(
+            account
         );
         final String verificationEmailMessage = this.replaceEmailVerificationParameters(
             this.verificationTokensService.getEncryptedToken(
                 verificationToken.getToken().toString()
             ),
-            newAccount.getUsername()
+            account.getUsername()
         );
 
-        AccountRegisterListener.CONSOLE_LOGGER.info(
+        AccountDeleteRequestProcessedListener.CONSOLE_LOGGER.info(
             "Sending verification email"
         );
 
         if (
             !this.emailService.sendSimpleMessage(
                 verificationEmailMessage,
-                this.newAccountEmailVerificationSubject,
-                newAccount.getEmail()
+                this.deleteAccountRequestSubject,
+                account.getEmail()
             )
         ) {
-            AccountRegisterListener.CONSOLE_LOGGER.info(
+            AccountDeleteRequestProcessedListener.CONSOLE_LOGGER.info(
                 "Verification email could not be sent"
             );
 
             return;
         }
 
-        AccountRegisterListener.CONSOLE_LOGGER.info(
+        AccountDeleteRequestProcessedListener.CONSOLE_LOGGER.info(
             "Verification email sent"
         );
     }
@@ -69,21 +71,21 @@ public class AccountRegisterListener implements ApplicationListener<AccountRegis
         final String encryptedToken,
         final String username
     ) {
-        return this.newAccountEmailVerificationMessage
+        return this.deleteAccountRequestMessage
             .replace(
-                "{hours_to_expire}",
+                "{minutes_to_expire}",
                 String.valueOf(
-                    VerificationTokensService.HOURS_OF_EXPIRING_EMAIL_VERIFICATION_TOKEN
+                    VerificationTokensService.MINUTES_OF_EXPIRING_DELETE_ACCOUNT_TOKEN
                 )
             )
             .replace("{username}", username)
             .replace(
-                "{verify_account_link}",
+                "{delete_account_link}",
                 this.hostDetailsProvider.getHostPath() +
                     "/api/verification-tokens/verify?token=" +
                     encryptedToken +
                     "&type=" +
-                    EVerificationTokenType.EMAIL_VERIFICATION_TOKEN +
+                    EVerificationTokenType.DELETE_ACCOUNT_TOKEN +
                     "&username=" +
                     username
             );

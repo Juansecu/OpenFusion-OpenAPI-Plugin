@@ -30,7 +30,7 @@ public class EmailUpdateListener implements ApplicationListener<EmailUpdateEvent
     private final VerificationTokensService verificationTokensService;
 
     @Override
-    public void onApplicationEvent(EmailUpdateEvent emailUpdateEvent) {
+    public void onApplicationEvent(final EmailUpdateEvent emailUpdateEvent) {
         final AccountEntity account = emailUpdateEvent.getAccount();
         final VerificationTokenEntity verificationToken = this.verificationTokensService.generateEmailVerificationToken(
             account

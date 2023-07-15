@@ -1,6 +1,7 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums;
 
 public enum EAccountServiceError {
+    ACCOUNT_NOT_VERIFIED("ACCOUNT_NOT_VERIFIED"),
     EMAIL_IN_USE("EMAIL_IN_USE"),
     PASSWORD_DOES_NOT_MATCH("PASSWORD_DOES_NOT_MATCH"),
     SAME_EMAIL("SAME_EMAIL"),
