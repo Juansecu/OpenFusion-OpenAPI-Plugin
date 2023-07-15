@@ -23,6 +23,7 @@ public class RegisterReqDto {
         message = AccountsValidationMessages.TOO_LARGE_EMAIL
     )
     private String email;
+    @NotEmpty(message = AccountsValidationMessages.NOT_EMPTY_USERNAME)
     @Pattern(
         flags = {Pattern.Flag.CASE_INSENSITIVE},
         message = AccountsValidationMessages.INVALID_USERNAME,
@@ -34,6 +35,7 @@ public class RegisterReqDto {
         min = AccountsValidations.MIN_USERNAME_LENGTH
     )
     private String username;
+    @NotEmpty(message = AccountsValidationMessages.NOT_EMPTY_PASSWORD)
     @Size(
         max = AccountsValidations.MAX_PASSWORD_LENGTH,
         message = AccountsValidationMessages.INVALID_PASSWORD_LENGTH,

@@ -16,6 +16,8 @@ public final class AccountsValidationMessages {
         AccountsValidations.MAX_USERNAME_LENGTH +
         " characters";
     public static final String NOT_EMPTY_EMAIL = "E-mail cannot be empty";
+    public static final String NOT_EMPTY_PASSWORD = "Password cannot be empty";
+    public static final String NOT_EMPTY_USERNAME = "Username cannot be empty";
     public static final String TOO_LARGE_EMAIL =
         "E-mail too large! Max allowed length is " +
         AccountsValidations.MAX_EMAIL_LENGTH +
