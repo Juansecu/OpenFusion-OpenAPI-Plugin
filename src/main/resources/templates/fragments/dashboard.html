@@ -27,6 +27,12 @@
             ></a>
 
             <a
+                th:href="@{/accounts/delete-account}"
+                th:text="#{delete-account.label}"
+                th:classappend="${#strings.equals(requestUri, '/accounts/delete-account') ? 'active' : ''}"
+            ></a>
+
+            <a
                 th:href="@{/auth/logout}"
                 th:text="#{logout}"
             ></a>

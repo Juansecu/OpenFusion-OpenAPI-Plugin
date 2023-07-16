@@ -23,6 +23,21 @@ form div[role=separator]:not(:first-child) {
     text-align: center;
 }
 
+.form__button {
+    width: 100%;
+    height: 2.5rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.form__button--danger {
+    background-color: #D00000;
+}
+
+.form__button--danger:hover {
+    background-color: #e20000;
+}
+
 .form__info {
     margin-top: 96px;
     text-align: center;
@@ -54,19 +69,22 @@ form div[role=separator]:not(:first-child) {
 
 .form__submit-button {
     margin-top: 1.5rem;
-    width: 100%;
-    height: 2.5rem;
-    font-weight: bold;
-    color: #ffffff;
 }
 
 .form__success {
     color: #07B20E;
 }
 
-.form__submit-button[disabled] {
+.form__button[disabled] {
     cursor: not-allowed;
+}
+
+.form__submit-button[disabled] {
     background-color: #066a0a;
+}
+
+.form__button--danger[disabled] {
+    background-color: #a70000;
 }
 
 .is-invalid {

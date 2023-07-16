@@ -101,6 +101,38 @@ public class AccountsService {
         );
     }
 
+    public String deleteAccount(
+        final DeleteAccountReqDto deleteAccountReqDto,
+        final BindingResult bindingResult,
+        final Model model,
+        final HttpServletRequest request
+    ) {
+        if (bindingResult.hasErrors())
+            return "delete-account";
+
+        final ResponseEntity<BasicResDto> deleteAccountResponse = this.deleteAccount(
+            deleteAccountReqDto,
+            request
+        );
+        final BasicResDto deleteAccountResponseBody = deleteAccountResponse.getBody();
+
+        if (!Objects.requireNonNull(deleteAccountResponseBody).success()) {
+            model.addAttribute(
+                "error",
+                deleteAccountResponseBody.message()
+            );
+
+            return "delete-account";
+        }
+
+        model.addAttribute(
+            "success",
+            "Verification email sent. Check your inbox"
+        );
+
+        return "delete-account";
+    }
+
     public AccountEntity getAccountByEmail(final String email) {
         return this.accountsRepository
             .findByEmailIgnoreCase(email)

@@ -22,10 +22,6 @@ aside::after {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-form {
-    width: 50%;
-}
-
 h1 {
     margin-bottom: 6.12rem;
 }
@@ -36,6 +32,10 @@ main {
     align-items: center;
     overflow: auto;
     width: 73%;
+}
+
+main > *:not(h1) {
+    width: 50%;
 }
 
 nav {

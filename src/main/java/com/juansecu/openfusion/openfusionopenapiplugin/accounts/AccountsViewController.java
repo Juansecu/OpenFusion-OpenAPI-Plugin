@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.DeleteAccountReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdateEmailReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdatePasswordReqDto;
 
@@ -20,6 +21,44 @@ public class AccountsViewController {
     private static final String REQUEST_URI_REQUEST_ATTRIBUTE = "requestUri";
 
     private final AccountsService accountsService;
+
+    @GetMapping("/delete-account")
+    public String deleteAccount(
+        final DeleteAccountReqDto deleteAccountReqDto,
+        final Model model,
+        final HttpServletRequest request
+    ) {
+        model.addAttribute(
+            AccountsViewController.REQUEST_URI_REQUEST_ATTRIBUTE,
+            request.getRequestURI()
+        );
+
+        return "delete-account";
+    }
+
+    @PostMapping(
+        consumes = "application/x-www-form-urlencoded",
+        path = "/delete-account"
+    )
+    public String deleteAccount(
+        @Valid
+        final DeleteAccountReqDto deleteAccountReqDto,
+        final BindingResult bindingResult,
+        final Model model,
+        final HttpServletRequest request
+    ) {
+        model.addAttribute(
+            AccountsViewController.REQUEST_URI_REQUEST_ATTRIBUTE,
+            request.getRequestURI()
+        );
+
+        return this.accountsService.deleteAccount(
+            deleteAccountReqDto,
+            bindingResult,
+            model,
+            request
+        );
+    }
 
     @GetMapping("/email-preferences")
     public String emailPreferences(
