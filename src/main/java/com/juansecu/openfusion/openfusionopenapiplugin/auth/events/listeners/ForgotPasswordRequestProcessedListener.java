@@ -1,4 +1,4 @@
-package com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.listeners;
+package com.juansecu.openfusion.openfusionopenapiplugin.auth.events.listeners;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.AccountRegisterEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.events.ForgotPasswordRequestProcessedEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.providers.HostDetailsProvider;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.services.EmailService;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.VerificationTokensService;
@@ -17,76 +17,78 @@ import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.models
 
 @Component
 @RequiredArgsConstructor
-public class AccountRegisterListener implements ApplicationListener<AccountRegisterEvent> {
-    private static final Logger CONSOLE_LOGGER = LogManager.getLogger(AccountRegisterListener.class);
+public class ForgotPasswordRequestProcessedListener implements ApplicationListener<ForgotPasswordRequestProcessedEvent> {
+    private static final Logger CONSOLE_LOGGER = LogManager.getLogger(ForgotPasswordRequestProcessedListener.class);
 
-    @Value("${mail.new-account-email-verification-message.message}")
-    private String newAccountEmailVerificationMessage;
-    @Value("${mail.new-account-email-verification-message.subject}")
-    private String newAccountEmailVerificationSubject;
+    @Value("${mail.reset-password-message.message}")
+    private String resetPasswordEmailMessage;
+    @Value("${mail.reset-password-message.subject}")
+    private String resetPasswordEmailMessageSubject;
 
     private final EmailService emailService;
     private final HostDetailsProvider hostDetailsProvider;
     private final VerificationTokensService verificationTokensService;
 
     @Override
-    public void onApplicationEvent(final AccountRegisterEvent accountRegisterEvent) {
-        final AccountEntity newAccount = accountRegisterEvent.getAccount();
+    public void onApplicationEvent(
+        final ForgotPasswordRequestProcessedEvent forgotPasswordRequestProcessedEvent
+    ) {
+        final AccountEntity account = forgotPasswordRequestProcessedEvent.getAccount();
         final VerificationTokenEntity verificationToken = this.verificationTokensService.generateVerificationToken(
-            newAccount,
-            EVerificationTokenType.EMAIL_VERIFICATION_TOKEN
+            account,
+            EVerificationTokenType.RESET_PASSWORD_TOKEN
         );
-        final String verificationEmailMessage = this.replaceEmailVerificationParameters(
+        final String verificationEmailMessage = this.replaceResetPasswordEmailParameters(
             this.verificationTokensService.getEncryptedToken(
                 verificationToken.getToken().toString()
             ),
-            newAccount.getUsername()
+            account.getUsername()
         );
 
-        AccountRegisterListener.CONSOLE_LOGGER.info(
+        ForgotPasswordRequestProcessedListener.CONSOLE_LOGGER.info(
             "Sending verification email..."
         );
 
         if (
             !this.emailService.sendSimpleMessage(
                 verificationEmailMessage,
-                this.newAccountEmailVerificationSubject,
-                newAccount.getEmail()
+                this.resetPasswordEmailMessageSubject,
+                account.getEmail()
             )
         ) {
-            AccountRegisterListener.CONSOLE_LOGGER.error(
+            ForgotPasswordRequestProcessedListener.CONSOLE_LOGGER.error(
                 "Verification email could not be sent"
             );
 
             return;
         }
 
-        AccountRegisterListener.CONSOLE_LOGGER.info(
+        ForgotPasswordRequestProcessedListener.CONSOLE_LOGGER.info(
             "Verification email sent"
         );
     }
 
-    private String replaceEmailVerificationParameters(
+    private String replaceResetPasswordEmailParameters(
         final String encryptedToken,
         final String username
     ) {
-        return this.newAccountEmailVerificationMessage
+        return this.resetPasswordEmailMessage
             .replace(
-                "{hours_to_expire}",
+                "{minutes_to_expire}",
                 String.valueOf(
-                    VerificationTokensService.HOURS_OF_EXPIRING_EMAIL_VERIFICATION_TOKEN
+                    VerificationTokensService.MINUTES_OF_EXPIRING_RESET_PASSWORD_TOKEN
                 )
             )
-            .replace("{username}", username)
             .replace(
-                "{verify_account_link}",
+                "{reset_password_link}",
                 this.hostDetailsProvider.getHostPath() +
                     "/api/verification-tokens/verify?token=" +
                     encryptedToken +
                     "&type=" +
-                    EVerificationTokenType.EMAIL_VERIFICATION_TOKEN +
+                    EVerificationTokenType.RESET_PASSWORD_TOKEN +
                     "&username=" +
                     username
-            );
+            )
+            .replace("{username}", username);
     }
 }

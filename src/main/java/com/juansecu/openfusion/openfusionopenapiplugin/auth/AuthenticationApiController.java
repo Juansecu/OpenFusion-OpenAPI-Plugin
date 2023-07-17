@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.ForgotPasswordReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.LoginReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.RegisterReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
@@ -25,6 +26,15 @@ public class AuthenticationApiController {
         final LoginReqDto loginReqDto
     ) {
         return this.authenticationService.authenticate(loginReqDto);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<BasicResDto> forgotPassword(
+        @RequestBody
+        @Valid
+        final ForgotPasswordReqDto forgotPasswordReqDto
+    ) {
+        return this.authenticationService.forgotPassword(forgotPasswordReqDto);
     }
 
     @PostMapping("/register")

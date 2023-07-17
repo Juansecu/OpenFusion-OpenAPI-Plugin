@@ -22,74 +22,62 @@ public class VerificationTokensService {
     public static final int HOURS_OF_EXPIRING_EMAIL_VERIFICATION_TOKEN = 24;
     public static final String IS_INVALID_TOKEN_ATTRIBUTE_KEY = "isInvalidToken";
     public static final int MINUTES_OF_EXPIRING_DELETE_ACCOUNT_TOKEN = 10;
+    public static final int MINUTES_OF_EXPIRING_RESET_PASSWORD_TOKEN = 10;
 
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(VerificationTokensService.class);
 
     private final CryptoUtil cryptoUtil;
     private final IVerificationTokensRepository verificationTokensRepository;
 
-    public VerificationTokenEntity generateDeleteAccountToken(
-        final AccountEntity account
+    public VerificationTokenEntity generateVerificationToken(
+        final AccountEntity account,
+        final EVerificationTokenType verificationTokenType
     ) {
         VerificationTokensService.CONSOLE_LOGGER.info(
             "Generating {}...",
-            EVerificationTokenType.DELETE_ACCOUNT_TOKEN
+            verificationTokenType
         );
 
+        LocalDateTime tokenExpirationDateTime;
+        long tokenExpirationSeconds;
+
         final UUID token = UUID.randomUUID();
-        final LocalDateTime tokenExpirationDateTime = LocalDateTime
-            .now()
-            .plusMinutes(
-                VerificationTokensService.MINUTES_OF_EXPIRING_DELETE_ACCOUNT_TOKEN
-            );
-        final long tokenExpirationSeconds = TimeUtil.localDateTimeToSeconds(
+
+        tokenExpirationDateTime = switch (verificationTokenType) {
+            case DELETE_ACCOUNT_TOKEN -> LocalDateTime
+                .now()
+                .plusMinutes(
+                    VerificationTokensService.MINUTES_OF_EXPIRING_DELETE_ACCOUNT_TOKEN
+                );
+            case EMAIL_VERIFICATION_TOKEN -> LocalDateTime
+                .now()
+                .plusHours(
+                    VerificationTokensService.HOURS_OF_EXPIRING_EMAIL_VERIFICATION_TOKEN
+                );
+            case RESET_PASSWORD_TOKEN -> LocalDateTime
+                .now()
+                .plusMinutes(
+                    VerificationTokensService.MINUTES_OF_EXPIRING_RESET_PASSWORD_TOKEN
+                );
+        };
+
+        tokenExpirationSeconds = TimeUtil.localDateTimeToSeconds(
             tokenExpirationDateTime
-        );
-        final VerificationTokenEntity verificationToken = new VerificationTokenEntity(
-            token,
-            EVerificationTokenType.DELETE_ACCOUNT_TOKEN,
-            account,
-            tokenExpirationSeconds
         );
 
         VerificationTokensService.CONSOLE_LOGGER.info(
             "Saving {}...",
-            EVerificationTokenType.DELETE_ACCOUNT_TOKEN
+            verificationTokenType
         );
 
-        return this.verificationTokensRepository.save(verificationToken);
-    }
-
-    public VerificationTokenEntity generateEmailVerificationToken(
-        final AccountEntity account
-    ) {
-        VerificationTokensService.CONSOLE_LOGGER.info(
-            "Generating {}...",
-            EVerificationTokenType.EMAIL_VERIFICATION_TOKEN
+        return this.verificationTokensRepository.save(
+            new VerificationTokenEntity(
+                token,
+                verificationTokenType,
+                account,
+                tokenExpirationSeconds
+            )
         );
-
-        final UUID token = UUID.randomUUID();
-        final LocalDateTime tokenExpirationDateTime = LocalDateTime
-            .now()
-            .plusHours(
-                VerificationTokensService.HOURS_OF_EXPIRING_EMAIL_VERIFICATION_TOKEN
-            );
-        final long tokenExpirationSeconds = TimeUtil.localDateTimeToSeconds(
-            tokenExpirationDateTime
-        );
-        final VerificationTokenEntity verificationToken = new VerificationTokenEntity(
-            token,
-            EVerificationTokenType.EMAIL_VERIFICATION_TOKEN,
-            account,
-            tokenExpirationSeconds
-        );
-
-        VerificationTokensService.CONSOLE_LOGGER.info(
-            "Saving {}...",
-            EVerificationTokenType.EMAIL_VERIFICATION_TOKEN
-        );
-
-        return this.verificationTokensRepository.save(verificationToken);
     }
 
     public String getEncryptedToken(final String decryptedToken) {

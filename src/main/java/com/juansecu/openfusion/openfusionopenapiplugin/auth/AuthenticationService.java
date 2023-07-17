@@ -25,6 +25,8 @@ import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountSe
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.AccountRegisterEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.repositories.IAccountsRepository;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.events.ForgotPasswordRequestProcessedEvent;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.ForgotPasswordReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.LoginReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.RegisterReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.responses.AuthenticationDataResDto;
@@ -110,6 +112,148 @@ public class AuthenticationService {
         response.addCookie(authenticationCookie);
 
         return "redirect:/accounts/email-preferences";
+    }
+
+    public ResponseEntity<BasicResDto> forgotPassword(
+        final ForgotPasswordReqDto forgotPasswordReqDto
+    ) {
+        AuthenticationService.CONSOLE_LOGGER.info("Initializing forgot password service...");
+
+        AccountEntity account;
+
+        if (
+            forgotPasswordReqDto.getEmail() == null &&
+            forgotPasswordReqDto.getUsername() == null
+        ) {
+            AuthenticationService.CONSOLE_LOGGER.error("User email and username are empty");
+
+            return new ResponseEntity<>(
+                new BasicResDto(
+                    false,
+                    EAccountServiceError.EMPTY_EMAIL_AND_USERNAME,
+                    "User email and username are empty",
+                    null
+                ),
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
+        if (forgotPasswordReqDto.getEmail() != null) {
+            AuthenticationService.CONSOLE_LOGGER.info("Searching by user email...");
+
+            account = this.accountsRepository
+                .findByEmailIgnoreCase(forgotPasswordReqDto.getEmail())
+                .orElse(null);
+
+            if (account == null) {
+                AuthenticationService.CONSOLE_LOGGER.error(
+                    "User not found"
+                );
+
+                return new ResponseEntity<>(
+                    new BasicResDto(
+                        false,
+                        EAccountServiceError.USER_NOT_FOUND,
+                        "User not found",
+                        null
+                    ),
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            if (!account.isVerified()) {
+                AuthenticationService.CONSOLE_LOGGER.error(
+                    "{}'s account is not verified",
+                    account.getUsername()
+                );
+
+                return new ResponseEntity<>(
+                    new BasicResDto(
+                        false,
+                        EAccountServiceError.ACCOUNT_NOT_VERIFIED,
+                        "Account is not verified",
+                        null
+                    ),
+                    HttpStatus.UNPROCESSABLE_ENTITY
+                );
+            }
+        } else {
+            AuthenticationService.CONSOLE_LOGGER.info("Searching by username...");
+
+            account = this.accountsRepository
+                .findByUsernameIgnoreCase(forgotPasswordReqDto.getUsername())
+                .orElse(null);
+
+            if (account == null) {
+                AuthenticationService.CONSOLE_LOGGER.error(
+                    "User {} does not exist",
+                    forgotPasswordReqDto.getUsername()
+                );
+
+                return new ResponseEntity<>(
+                    new BasicResDto(
+                        false,
+                        EAccountServiceError.USER_NOT_FOUND,
+                        "User not found",
+                        null
+                    ),
+                    HttpStatus.NOT_FOUND
+                );
+            }
+
+            if (account.getEmail().isBlank()) {
+                AuthenticationService.CONSOLE_LOGGER.error(
+                    "User {} does not have a associated e-mail address. Redirecting user to ask them to associate one...",
+                    forgotPasswordReqDto.getUsername()
+                );
+
+                return new ResponseEntity<>(
+                    new BasicResDto(
+                        false,
+                        EAccountServiceError.NOT_LINKED_EMAIL,
+                        "User does not have an associated e-mail address",
+                        null
+                    ),
+                    HttpStatus.UNPROCESSABLE_ENTITY
+                );
+            }
+
+            if (!account.isVerified()) {
+                AuthenticationService.CONSOLE_LOGGER.error(
+                    "{}'s account is not verified",
+                    account.getUsername()
+                );
+
+                return new ResponseEntity<>(
+                    new BasicResDto(
+                        false,
+                        EAccountServiceError.ACCOUNT_NOT_VERIFIED,
+                        "Account is not verified",
+                        null
+                    ),
+                    HttpStatus.UNPROCESSABLE_ENTITY
+                );
+            }
+        }
+
+        AuthenticationService.CONSOLE_LOGGER.info(
+            "Reset password request for {}'s account processed successfully",
+            account.getUsername()
+        );
+
+        this.applicationEventPublisher.publishEvent(
+            new ForgotPasswordRequestProcessedEvent(account)
+        );
+
+        return new ResponseEntity<>(
+            new BasicResDto(
+                true,
+                null,
+                "Reset password request processed successfully. Verification e-mail sent",
+                null
+            ),
+            HttpStatus.OK
+        );
     }
 
     public String logout(final HttpServletResponse response) {

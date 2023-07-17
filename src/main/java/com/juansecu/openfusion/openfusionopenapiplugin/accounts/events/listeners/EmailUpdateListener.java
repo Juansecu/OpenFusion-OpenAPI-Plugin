@@ -32,8 +32,9 @@ public class EmailUpdateListener implements ApplicationListener<EmailUpdateEvent
     @Override
     public void onApplicationEvent(final EmailUpdateEvent emailUpdateEvent) {
         final AccountEntity account = emailUpdateEvent.getAccount();
-        final VerificationTokenEntity verificationToken = this.verificationTokensService.generateEmailVerificationToken(
-            account
+        final VerificationTokenEntity verificationToken = this.verificationTokensService.generateVerificationToken(
+            account,
+            EVerificationTokenType.EMAIL_VERIFICATION_TOKEN
         );
         final String verificationEmailMessage = this.replaceUpdateEmailParameters(
             this.verificationTokensService.getEncryptedToken(
@@ -43,7 +44,7 @@ public class EmailUpdateListener implements ApplicationListener<EmailUpdateEvent
         );
 
         EmailUpdateListener.CONSOLE_LOGGER.info(
-            "Sending verification email"
+            "Sending verification email..."
         );
 
         if (
@@ -53,7 +54,7 @@ public class EmailUpdateListener implements ApplicationListener<EmailUpdateEvent
                 account.getEmail()
             )
         ) {
-            EmailUpdateListener.CONSOLE_LOGGER.info(
+            EmailUpdateListener.CONSOLE_LOGGER.error(
                 "Verification email could not be sent"
             );
 

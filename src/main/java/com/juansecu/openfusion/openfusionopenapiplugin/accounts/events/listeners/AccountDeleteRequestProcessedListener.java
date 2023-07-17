@@ -34,8 +34,9 @@ public class AccountDeleteRequestProcessedListener implements ApplicationListene
         final AccountDeleteRequestProcessedEvent accountDeleteRequestProcessedEvent
     ) {
         final AccountEntity account = accountDeleteRequestProcessedEvent.getAccount();
-        final VerificationTokenEntity verificationToken = this.verificationTokensService.generateDeleteAccountToken(
-            account
+        final VerificationTokenEntity verificationToken = this.verificationTokensService.generateVerificationToken(
+            account,
+            EVerificationTokenType.DELETE_ACCOUNT_TOKEN
         );
         final String verificationEmailMessage = this.replaceEmailVerificationParameters(
             this.verificationTokensService.getEncryptedToken(
@@ -45,7 +46,7 @@ public class AccountDeleteRequestProcessedListener implements ApplicationListene
         );
 
         AccountDeleteRequestProcessedListener.CONSOLE_LOGGER.info(
-            "Sending verification email"
+            "Sending verification email..."
         );
 
         if (
@@ -55,7 +56,7 @@ public class AccountDeleteRequestProcessedListener implements ApplicationListene
                 account.getEmail()
             )
         ) {
-            AccountDeleteRequestProcessedListener.CONSOLE_LOGGER.info(
+            AccountDeleteRequestProcessedListener.CONSOLE_LOGGER.error(
                 "Verification email could not be sent"
             );
 
@@ -73,13 +74,6 @@ public class AccountDeleteRequestProcessedListener implements ApplicationListene
     ) {
         return this.deleteAccountRequestMessage
             .replace(
-                "{minutes_to_expire}",
-                String.valueOf(
-                    VerificationTokensService.MINUTES_OF_EXPIRING_DELETE_ACCOUNT_TOKEN
-                )
-            )
-            .replace("{username}", username)
-            .replace(
                 "{delete_account_link}",
                 this.hostDetailsProvider.getHostPath() +
                     "/api/verification-tokens/verify?token=" +
@@ -88,6 +82,13 @@ public class AccountDeleteRequestProcessedListener implements ApplicationListene
                     EVerificationTokenType.DELETE_ACCOUNT_TOKEN +
                     "&username=" +
                     username
-            );
+            )
+            .replace(
+                "{minutes_to_expire}",
+                String.valueOf(
+                    VerificationTokensService.MINUTES_OF_EXPIRING_DELETE_ACCOUNT_TOKEN
+                )
+            )
+            .replace("{username}", username);
     }
 }

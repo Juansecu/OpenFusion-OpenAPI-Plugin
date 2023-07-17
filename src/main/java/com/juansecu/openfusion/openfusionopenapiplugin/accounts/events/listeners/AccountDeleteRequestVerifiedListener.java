@@ -51,7 +51,7 @@ public class AccountDeleteRequestVerifiedListener implements ApplicationListener
                 account.getEmail()
             )
         ) {
-            AccountDeleteRequestVerifiedListener.CONSOLE_LOGGER.info(
+            AccountDeleteRequestVerifiedListener.CONSOLE_LOGGER.error(
                 "Confirmation email could not be sent"
             );
 
