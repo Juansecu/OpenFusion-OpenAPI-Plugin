@@ -3,6 +3,12 @@ form {
     flex-direction: column;
 }
 
+.form--login-form div[role=separator],
+.form--login-form .form__error,
+.form--login-form .form__success {
+    grid-column: 1 / 3;
+}
+
 form div[role=separator]:not(:first-child) {
     margin-top: 1rem;
 }
@@ -23,6 +29,11 @@ form div[role=separator]:not(:first-child) {
     text-align: center;
 }
 
+.form--login-form {
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
 .form__button {
     width: 100%;
     height: 2.5rem;
@@ -36,6 +47,10 @@ form div[role=separator]:not(:first-child) {
 
 .form__button--danger:hover {
     background-color: #e20000;
+}
+
+.form__button--login-button {
+    width: 50%;
 }
 
 .form__info {
@@ -65,6 +80,10 @@ form div[role=separator]:not(:first-child) {
 
 .form__label[for] {
     cursor: pointer;
+}
+
+.form__link--danger {
+    color: #D00000;
 }
 
 .form__submit-button {

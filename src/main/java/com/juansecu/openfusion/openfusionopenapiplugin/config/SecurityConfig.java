@@ -63,6 +63,7 @@ public class SecurityConfig {
             .authorizeHttpRequests().requestMatchers(
                 "/api-docs/**",
                 "/api/auth/**",
+                "/auth/forgot-password",
                 "/auth/login",
                 "/auth/register",
                 "/docs",

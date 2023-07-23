@@ -93,6 +93,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final AntPathRequestMatcher[] excludedMatchers = {
             new AntPathRequestMatcher("/api-docs/**"),
             new AntPathRequestMatcher("/api/auth/**"),
+            new AntPathRequestMatcher("/auth/forgot-password"),
             new AntPathRequestMatcher("/auth/login"),
             new AntPathRequestMatcher("/auth/register"),
             new AntPathRequestMatcher("/docs"),

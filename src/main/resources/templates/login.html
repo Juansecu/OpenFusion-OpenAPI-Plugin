@@ -6,7 +6,7 @@
     <link rel="icon" type="image/x-icon" th:href="@{/static/images/openfusion-icon.ico}" />
 
     <title
-        th:text="${#messages.msg('login') + ' | ' + @environment.getProperty('issuer.name')}"
+        th:text="${#messages.msg('login.label') + ' | ' + @environment.getProperty('issuer.name')}"
     ></title>
 
     <link rel="stylesheet" th:href="@{/static/css/authentication.css}" />
@@ -27,12 +27,13 @@
             class="logo"
         />
 
-        <h1 th:text="#{login}"></h1>
+        <h1 th:text="#{login.label}"></h1>
 
         <form
             th:action="@{/auth/login}"
             th:object="${loginReqDto}"
             id="loginForm"
+            class="form--login-form"
             method="POST"
         >
             <span th:replace="~{fragments/forms/post-submit-messages.html :: post-submit-error}"></span>
@@ -58,11 +59,19 @@
             <button
                 type="submit"
                 id="loginButton"
-                class="form__submit-button form__button"
+                class="form__submit-button form__button form__button--login-button"
                 disabled="disabled"
             >
-                <span th:text="#{login}"></span>
+                <span th:text="#{login.label}"></span>
             </button>
+
+            <a
+                th:href="@{/auth/forgot-password}"
+                class="form__link--danger"
+                style="align-self: center; margin-top: 1.5rem;"
+            >
+                <span th:text="#{password.forgot-password.link}"></span>
+            </a>
         </form>
 
         <p class="form__info">

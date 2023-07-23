@@ -3,6 +3,7 @@ package com.juansecu.openfusion.openfusionopenapiplugin.auth;
 import java.util.Objects;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -29,9 +30,12 @@ import com.juansecu.openfusion.openfusionopenapiplugin.auth.events.ForgotPasswor
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.ForgotPasswordReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.LoginReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.RegisterReqDto;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.ResetPasswordReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.responses.AuthenticationDataResDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.adapters.JwtAdapter;
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
+import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.VerificationTokensService;
+import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenType;
 
 @RequiredArgsConstructor
 @Service
@@ -50,6 +54,7 @@ public class AuthenticationService {
     private final JwtAdapter jwtAdapter;
     private final PasswordEncoder passwordEncoder;
     private final UserDetailsService userDetailsService;
+    private final VerificationTokensService verificationTokensService;
 
     public BasicResDto authenticate(final LoginReqDto loginReqDto) {
         UserDetails account;
@@ -203,7 +208,7 @@ public class AuthenticationService {
 
             if (account.getEmail().isBlank()) {
                 AuthenticationService.CONSOLE_LOGGER.error(
-                    "User {} does not have a associated e-mail address. Redirecting user to ask them to associate one...",
+                    "User {} does not have a associated e-mail address",
                     forgotPasswordReqDto.getUsername()
                 );
 
@@ -254,6 +259,37 @@ public class AuthenticationService {
             ),
             HttpStatus.OK
         );
+    }
+
+    public String forgotPassword(
+        final ForgotPasswordReqDto forgotPasswordReqDto,
+        final BindingResult bindingResult,
+        final Model model
+    ) {
+        if (bindingResult.hasErrors())
+            return "forgot-password";
+
+        final ResponseEntity<BasicResDto> forgotPasswordResponse = this.forgotPassword(
+            forgotPasswordReqDto
+        );
+        final BasicResDto forgotPasswordResponseBody = forgotPasswordResponse.getBody();
+
+        if (!Objects.requireNonNull(forgotPasswordResponseBody).success()) {
+            if (forgotPasswordResponseBody.error() == EAccountServiceError.NOT_LINKED_EMAIL) {
+                model.addAttribute(
+                    "error",
+                    "Service unavailable due you don't have an associated e-mail address"
+                );
+
+                return "forgot-password";
+            }
+
+            model.addAttribute("error", forgotPasswordResponseBody.message());
+
+            return "forgot-password";
+        }
+
+        return "redirect:/auth/login?success=We+have+sent+you+an+e-mail+to+reset+your+password.+Check+your+inbox";
     }
 
     public String logout(final HttpServletResponse response) {
@@ -370,5 +406,62 @@ public class AuthenticationService {
         }
 
         return "redirect:/auth/login?success=You+have+successfully+signed+up%21+Check+your+e-mail+to+verify+your+account";
+    }
+
+    public String resetPassword(
+        final ResetPasswordReqDto resetPasswordReqDto,
+        final EVerificationTokenType verificationTokenType,
+        final String username,
+        final BindingResult bindingResult,
+        final HttpServletRequest request
+    ) {
+        if (verificationTokenType != EVerificationTokenType.RESET_PASSWORD_TOKEN)
+            return "redirect:/auth/login?error=Invalid+token+type";
+
+        if (bindingResult.hasErrors())
+            return "reset-password";
+
+        AccountEntity account;
+        boolean isInvalidToken;
+
+        AuthenticationService.CONSOLE_LOGGER.info(
+            "Verifying {} token for user {}...",
+            verificationTokenType,
+            username
+        );
+
+        this.verificationTokensService.verifyToken(
+            verificationTokenType,
+            username,
+            request
+        );
+
+        isInvalidToken = (Boolean) request.getAttribute(
+            VerificationTokensService.IS_INVALID_TOKEN_ATTRIBUTE_KEY
+        );
+
+        if (isInvalidToken) return "forgot-password";
+
+        account = (AccountEntity) request.getAttribute("account");
+
+        AuthenticationService.CONSOLE_LOGGER.info(
+            "Resetting password for user {}...",
+            account.getUsername()
+        );
+
+        account.setPassword(
+            this.passwordEncoder.encode(
+                resetPasswordReqDto.getNewPassword()
+            )
+        );
+
+        this.accountsRepository.save(account);
+
+        AuthenticationService.CONSOLE_LOGGER.info(
+            "Password reset for user {} successful",
+            account.getUsername()
+        );
+
+        return "redirect:/auth/login?success=You+have+reset+your+password+successfully%21";
     }
 }

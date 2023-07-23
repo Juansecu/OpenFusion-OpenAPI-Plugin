@@ -3,7 +3,8 @@ import {
     validateEmailConfirmation,
     validatePassword,
     validatePasswordConfirmation,
-    validateUsername
+    validateUsername,
+    validateUsernameOrEmail
 } from './form-validations.js';
 
 export function checkEmail(event) {
@@ -180,4 +181,31 @@ export function checkUsername(event) {
 
     usernameInput.classList.remove('is-invalid');
     usernameInput.classList.add('is-valid');
+}
+
+export function checkUsernameOrEmail(event) {
+    const usernameOrEmailInput = event.target;
+    const usernameOrEmailPostErrors = document.getElementById('emailOrUsernamePostErrors');
+    const usernameOrEmailValidationResult = validateUsernameOrEmail(usernameOrEmailInput.value);
+
+    if (!usernameOrEmailValidationResult.isValid) {
+        if (usernameOrEmailPostErrors) emailOrUsernamePostErrors.textContent = '';
+
+        usernameOrEmailInput.classList.remove('is-valid');
+        usernameOrEmailInput.classList.add('is-invalid');
+
+        usernameOrEmailError.textContent = usernameOrEmailValidationResult.errorMessage;
+
+        return;
+    }
+
+    if (usernameOrEmailInput.value.includes('@'))
+        usernameOrEmailInput.setAttribute('name', 'email');
+    else
+        usernameOrEmailInput.setAttribute('name', 'username');
+
+    usernameOrEmailError.textContent = '';
+
+    usernameOrEmailInput.classList.remove('is-invalid');
+    usernameOrEmailInput.classList.add('is-valid');
 }

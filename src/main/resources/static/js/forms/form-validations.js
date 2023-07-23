@@ -159,3 +159,49 @@ export function validateUsername(username) {
 
     return result;
 }
+
+/**
+    * @param {string} usernameOrEmail
+    * @returns {{
+    *   errorMessage: string,
+    *   isValid: boolean
+    * }}
+    */
+export function validateUsernameOrEmail(usernameOrEmail) {
+    let validationResult;
+
+    const result = {
+        errorMessage: '',
+        isValid: false
+    };
+
+    if (!usernameOrEmail) {
+        result.errorMessage = 'Username or email cannot be empty';
+        return result;
+    }
+
+    if (usernameOrEmail.length < 4) {
+        result.errorMessage = 'Username or email must be at least 4 characters long';
+        return result;
+    }
+
+    if (/@/.test(usernameOrEmail)) {
+        validationResult = validateEmail(usernameOrEmail);
+
+        if (!validationResult.isValid) {
+            result.errorMessage = validationResult.errorMessage;
+            return result;
+        }
+    } else {
+        validationResult = validateUsername(usernameOrEmail);
+
+        if (!validationResult.isValid) {
+            result.errorMessage = validationResult.errorMessage;
+            return result;
+        }
+    }
+
+    result.isValid = result.errorMessage === '';
+
+    return result;
+}

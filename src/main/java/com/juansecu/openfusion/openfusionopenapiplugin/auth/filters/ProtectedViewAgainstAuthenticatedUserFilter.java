@@ -41,6 +41,7 @@ public class ProtectedViewAgainstAuthenticatedUserFilter extends OncePerRequestF
     @Override
     protected boolean shouldNotFilter(final HttpServletRequest request) {
         final AntPathRequestMatcher[] excludedMatchers = {
+            new AntPathRequestMatcher("/auth/forgot-password"),
             new AntPathRequestMatcher("/auth/login"),
             new AntPathRequestMatcher("/auth/register")
         };

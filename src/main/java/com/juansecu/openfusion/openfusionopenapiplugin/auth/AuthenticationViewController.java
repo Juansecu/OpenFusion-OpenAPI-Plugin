@@ -1,5 +1,6 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.auth;
 
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.ForgotPasswordReqDto;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,30 @@ import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests
 @RequiredArgsConstructor
 public class AuthenticationViewController {
     private final AuthenticationService authenticationService;
+
+    @GetMapping("/forgot-password")
+    public String forgotPassword(
+        final ForgotPasswordReqDto forgotPasswordReqDto
+    ) {
+        return "forgot-password";
+    }
+
+    @PostMapping(
+        consumes = "application/x-www-form-urlencoded",
+        path = "/forgot-password"
+    )
+    public String forgotPassword(
+        @Valid
+        final ForgotPasswordReqDto forgotPasswordReqDto,
+        final BindingResult bindingResult,
+        final Model model
+    ) {
+        return this.authenticationService.forgotPassword(
+            forgotPasswordReqDto,
+            bindingResult,
+            model
+        );
+    }
 
     @GetMapping("/login")
     public String login(final LoginReqDto loginReqDto) {
