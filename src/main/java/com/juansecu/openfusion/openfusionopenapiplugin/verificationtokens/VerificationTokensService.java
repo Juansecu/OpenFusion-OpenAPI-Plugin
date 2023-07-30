@@ -23,6 +23,8 @@ public class VerificationTokensService {
     public static final String IS_INVALID_TOKEN_ATTRIBUTE_KEY = "isInvalidToken";
     public static final int MINUTES_OF_EXPIRING_DELETE_ACCOUNT_TOKEN = 10;
     public static final int MINUTES_OF_EXPIRING_RESET_PASSWORD_TOKEN = 10;
+    public static final int RESET_PASSWORD_TOKEN_MAX_USES = 2;
+    public static final String VERIFICATION_TOKEN_ATTRIBUTE_KEY = "verificationToken";
 
     private static final Logger CONSOLE_LOGGER = LogManager.getLogger(VerificationTokensService.class);
 
@@ -84,6 +86,40 @@ public class VerificationTokensService {
         return this.cryptoUtil.encrypt(decryptedToken);
     }
 
+    public VerificationTokenEntity getVerificationToken(
+        final String encryptedToken,
+        final EVerificationTokenType verificationTokenType,
+        final AccountEntity account
+    ) {
+        VerificationTokensService.CONSOLE_LOGGER.info(
+            "Getting {} for user {}...",
+            verificationTokenType,
+            account.getUsername()
+        );
+
+        UUID decryptedToken;
+
+        try {
+            decryptedToken = UUID.fromString(
+                this.cryptoUtil.decrypt(encryptedToken)
+            );
+        } catch (final IllegalArgumentException illegalArgumentException) {
+            VerificationTokensService.CONSOLE_LOGGER.info(
+                "Invalid token"
+            );
+
+            return null;
+        }
+
+        return this.verificationTokensRepository
+            .findByTokenAndTypeAndAccount(
+                decryptedToken,
+                verificationTokenType,
+                account
+            )
+            .orElse(null);
+    }
+
     public void verifyToken(
         final EVerificationTokenType verificationTokenType,
         final String username,
@@ -95,27 +131,9 @@ public class VerificationTokensService {
             username
         );
 
-        final AccountEntity account = (AccountEntity) request.getAttribute("account");
-        final VerificationTokenEntity verificationToken = this.verificationTokensRepository
-            .findByTokenAndTypeAndAccount(
-                (UUID) request.getAttribute("decryptedToken"),
-                verificationTokenType,
-                account
-            )
-            .orElse(null);
-
-        if (verificationToken == null) {
-            VerificationTokensService.CONSOLE_LOGGER.info(
-                "Verification token not found"
-            );
-
-            request.setAttribute(
-                VerificationTokensService.IS_INVALID_TOKEN_ATTRIBUTE_KEY,
-                true
-            );
-
-            return;
-        }
+        final VerificationTokenEntity verificationToken = (VerificationTokenEntity) request.getAttribute(
+            VerificationTokensService.VERIFICATION_TOKEN_ATTRIBUTE_KEY
+        );
 
         if (
             verificationToken.getExpiresAt() < TimeUtil.localDateTimeToSeconds(
@@ -134,9 +152,29 @@ public class VerificationTokensService {
             return;
         }
 
+        if (
+            verificationTokenType == EVerificationTokenType.RESET_PASSWORD_TOKEN &&
+            verificationToken.getUsesCount() == VerificationTokensService.RESET_PASSWORD_TOKEN_MAX_USES
+        ) {
+            VerificationTokensService.CONSOLE_LOGGER.info(
+                "Verification token already used"
+            );
+
+            request.setAttribute(
+                VerificationTokensService.IS_INVALID_TOKEN_ATTRIBUTE_KEY,
+                true
+            );
+
+            return;
+        }
+
         VerificationTokensService.CONSOLE_LOGGER.info(
-            "Verification token validated successfully"
+            "Verification token validated successfully. Updating uses count..."
         );
+
+        verificationToken.setUsesCount(verificationToken.getUsesCount() + 1);
+
+        this.verificationTokensRepository.save(verificationToken);
 
         request.setAttribute(
             VerificationTokensService.IS_INVALID_TOKEN_ATTRIBUTE_KEY,

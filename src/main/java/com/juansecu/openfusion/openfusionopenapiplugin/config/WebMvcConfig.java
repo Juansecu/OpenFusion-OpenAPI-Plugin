@@ -32,7 +32,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry
             .addInterceptor(this.verificationTokenInterceptor)
             .addPathPatterns(
-                "/api/verification-tokens/verify"
+                "/api/verification-tokens/verify",
+                "/auth/reset-password"
             );
     }
 

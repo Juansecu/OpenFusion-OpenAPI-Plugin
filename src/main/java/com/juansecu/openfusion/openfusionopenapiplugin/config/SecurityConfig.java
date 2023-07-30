@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.JwtAuthenticationFilter;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.ProtectedViewAgainstAuthenticatedUserFilter;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.ProtectedViewAgainstAuthenticationFilter;
+import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.filters.VerificationTokenFinderFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final ProtectedViewAgainstAuthenticatedUserFilter protectedViewAgainstAuthenticatedUserFilter;
     private final ProtectedViewAgainstAuthenticationFilter protectedViewAgainstAuthenticationFilter;
     private final UserDetailsService userDetailsService;
+    private final VerificationTokenFinderFilter verificationTokenFinderFilter;
 
     @Bean
     protected AuthenticationManager authenticationManager(
@@ -66,6 +68,7 @@ public class SecurityConfig {
                 "/auth/forgot-password",
                 "/auth/login",
                 "/auth/register",
+                "/auth/reset-password",
                 "/docs",
                 "/favicon.ico",
                 "/static/**",
@@ -89,6 +92,10 @@ public class SecurityConfig {
             .addFilterAfter(
                 this.protectedViewAgainstAuthenticatedUserFilter,
                 ProtectedViewAgainstAuthenticationFilter.class
+            )
+            .addFilterAfter(
+                this.verificationTokenFinderFilter,
+                ProtectedViewAgainstAuthenticatedUserFilter.class
             )
             .exceptionHandling().authenticationEntryPoint(this.authenticationEntryPoint);
 

@@ -1,13 +1,13 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.shared.utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class CryptoUtil {
-    @Autowired
-    private TextEncryptor textEncryptor;
+    private final TextEncryptor textEncryptor;
 
     public String decrypt(final String encryptedText) {
         return this.textEncryptor.decrypt(encryptedText);

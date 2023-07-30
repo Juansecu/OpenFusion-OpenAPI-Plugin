@@ -36,6 +36,7 @@ import com.juansecu.openfusion.openfusionopenapiplugin.shared.adapters.JwtAdapte
 import com.juansecu.openfusion.openfusionopenapiplugin.shared.models.dtos.responses.BasicResDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.VerificationTokensService;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenType;
+import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.models.entities.VerificationTokenEntity;
 
 @RequiredArgsConstructor
 @Service
@@ -165,23 +166,6 @@ public class AuthenticationService {
                     HttpStatus.NOT_FOUND
                 );
             }
-
-            if (!account.isVerified()) {
-                AuthenticationService.CONSOLE_LOGGER.error(
-                    "{}'s account is not verified",
-                    account.getUsername()
-                );
-
-                return new ResponseEntity<>(
-                    new BasicResDto(
-                        false,
-                        EAccountServiceError.ACCOUNT_NOT_VERIFIED,
-                        "Account is not verified",
-                        null
-                    ),
-                    HttpStatus.UNPROCESSABLE_ENTITY
-                );
-            }
         } else {
             AuthenticationService.CONSOLE_LOGGER.info("Searching by username...");
 
@@ -222,23 +206,23 @@ public class AuthenticationService {
                     HttpStatus.UNPROCESSABLE_ENTITY
                 );
             }
+        }
 
-            if (!account.isVerified()) {
-                AuthenticationService.CONSOLE_LOGGER.error(
-                    "{}'s account is not verified",
-                    account.getUsername()
-                );
+        if (!account.isVerified()) {
+            AuthenticationService.CONSOLE_LOGGER.error(
+                "{}'s account is not verified",
+                account.getUsername()
+            );
 
-                return new ResponseEntity<>(
-                    new BasicResDto(
-                        false,
-                        EAccountServiceError.ACCOUNT_NOT_VERIFIED,
-                        "Account is not verified",
-                        null
-                    ),
-                    HttpStatus.UNPROCESSABLE_ENTITY
-                );
-            }
+            return new ResponseEntity<>(
+                new BasicResDto(
+                    false,
+                    EAccountServiceError.ACCOUNT_NOT_VERIFIED,
+                    "Account is not verified",
+                    null
+                ),
+                HttpStatus.UNPROCESSABLE_ENTITY
+            );
         }
 
         AuthenticationService.CONSOLE_LOGGER.info(
@@ -408,11 +392,23 @@ public class AuthenticationService {
         return "redirect:/auth/login?success=You+have+successfully+signed+up%21+Check+your+e-mail+to+verify+your+account";
     }
 
+    public String resetPassword(final HttpServletRequest request) {
+        final VerificationTokenEntity verificationToken = (VerificationTokenEntity) request.getAttribute(
+            VerificationTokensService.VERIFICATION_TOKEN_ATTRIBUTE_KEY
+        );
+
+        if (verificationToken.getUsesCount() != 1)
+            return "redirect:/auth/login?error=Invalid+token";
+
+        return "reset-password";
+    }
+
     public String resetPassword(
         final ResetPasswordReqDto resetPasswordReqDto,
         final EVerificationTokenType verificationTokenType,
         final String username,
         final BindingResult bindingResult,
+        final Model model,
         final HttpServletRequest request
     ) {
         if (verificationTokenType != EVerificationTokenType.RESET_PASSWORD_TOKEN)
@@ -440,7 +436,14 @@ public class AuthenticationService {
             VerificationTokensService.IS_INVALID_TOKEN_ATTRIBUTE_KEY
         );
 
-        if (isInvalidToken) return "forgot-password";
+        if (isInvalidToken) {
+            model.addAttribute(
+                "error",
+                "Invalid token"
+            );
+
+            return "forgot-password";
+        }
 
         account = (AccountEntity) request.getAttribute("account");
 

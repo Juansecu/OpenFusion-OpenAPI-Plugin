@@ -1,0 +1,34 @@
+body {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: no-repeat center top/cover url(/static/images/endsville.webp);
+}
+
+body::after {
+    position: absolute;
+    z-index: -1;
+    content: '';
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+form {
+    width: 70%;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+    margin: 0 auto;
+    width: 42%;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+.logo {
+    margin-top: 1.5rem;
+    width: 25%;
+}

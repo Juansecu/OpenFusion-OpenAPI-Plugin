@@ -43,7 +43,8 @@ public class ProtectedViewAgainstAuthenticatedUserFilter extends OncePerRequestF
         final AntPathRequestMatcher[] excludedMatchers = {
             new AntPathRequestMatcher("/auth/forgot-password"),
             new AntPathRequestMatcher("/auth/login"),
-            new AntPathRequestMatcher("/auth/register")
+            new AntPathRequestMatcher("/auth/register"),
+            new AntPathRequestMatcher("/auth/reset-password"),
         };
 
         return Arrays

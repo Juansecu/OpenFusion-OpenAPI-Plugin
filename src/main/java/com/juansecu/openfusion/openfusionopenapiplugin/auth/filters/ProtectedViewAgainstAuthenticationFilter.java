@@ -35,6 +35,7 @@ public class ProtectedViewAgainstAuthenticationFilter extends OncePerRequestFilt
             new AntPathRequestMatcher("/auth/forgot-password"),
             new AntPathRequestMatcher("/auth/login"),
             new AntPathRequestMatcher("/auth/register"),
+            new AntPathRequestMatcher("/auth/reset-password"),
             new AntPathRequestMatcher("/docs"),
             new AntPathRequestMatcher("/favicon.ico"),
             new AntPathRequestMatcher("/static/**"),

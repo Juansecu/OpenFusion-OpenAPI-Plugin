@@ -1,17 +1,14 @@
 import { validatePasswordConfirmation } from './forms/form-validations.js';
 import {
     checkNewPassword,
-    checkNewPasswordConfirmation,
-    checkPassword
+    checkNewPasswordConfirmation
 } from './forms/forms.js';
-
-currentPassword.addEventListener('input', checkPassword);
 
 newPassword.addEventListener('input', checkNewPassword);
 
 newPasswordConfirmation.addEventListener('input', checkNewPasswordConfirmation);
 
-updatePasswordForm.addEventListener('input', event => {
+resetPasswordForm.addEventListener('input', event => {
     const newPasswordConfirmationValidationResult = validatePasswordConfirmation(
         newPassword.value,
         newPasswordConfirmation.value
@@ -21,7 +18,7 @@ updatePasswordForm.addEventListener('input', event => {
     ].filter(validationResult => !validationResult.isValid);
 
     if (invalidInputs.length > 0)
-        updatePasswordButton.setAttribute('disabled', 'disabled');
+        resetPasswordButton.setAttribute('disabled', 'disabled');
     else
-        updatePasswordButton.removeAttribute('disabled');
+        resetPasswordButton.removeAttribute('disabled');
 });

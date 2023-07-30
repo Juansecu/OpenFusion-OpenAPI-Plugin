@@ -1,15 +1,11 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.interceptors;
 
-import java.io.IOException;
-import java.util.UUID;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,11 +13,10 @@ import org.springframework.web.servlet.ModelAndView;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.AccountsService;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.AccountDeleteRequestVerifiedEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
-import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.AuthenticationDetails;
-import com.juansecu.openfusion.openfusionopenapiplugin.auth.utils.JwtAuthenticationValidationUtil;
-import com.juansecu.openfusion.openfusionopenapiplugin.shared.utils.CryptoUtil;
+import com.juansecu.openfusion.openfusionopenapiplugin.shared.utils.RedirectUtil;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.VerificationTokensService;
 import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenType;
+import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.models.entities.VerificationTokenEntity;
 
 @Component
 @RequiredArgsConstructor
@@ -30,9 +25,6 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
 
     private final AccountsService accountsService;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final CryptoUtil cryptoUtil;
-    private final JwtAuthenticationValidationUtil jwtAuthenticationValidationUtil;
-    private final UserDetailsService userDetailsService;
 
     @Override
     public void postHandle(
@@ -41,6 +33,13 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
         final Object handler,
         final ModelAndView modelAndView
     ) throws Exception {
+        if (
+            request.getAttribute(
+                VerificationTokensService.IS_INVALID_TOKEN_ATTRIBUTE_KEY
+            ) == null
+        )
+            return;
+
         VerificationTokenInterceptor.CONSOLE_LOGGER.info(
             "Post-intercepting token verification request..."
         );
@@ -50,14 +49,17 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
         final boolean isInvalidToken = (boolean) request.getAttribute(
             VerificationTokensService.IS_INVALID_TOKEN_ATTRIBUTE_KEY
         );
+        final VerificationTokenEntity verificationToken = (VerificationTokenEntity) request.getAttribute(
+            VerificationTokensService.VERIFICATION_TOKEN_ATTRIBUTE_KEY
+        );
         final EVerificationTokenType verificationTokenType = EVerificationTokenType.valueOf(
             request.getParameter("type")
         );
 
         if (isInvalidToken) {
-            this.redirect(
+            RedirectUtil.redirect(
                 isAuthenticated,
-                true,
+                false,
                 "Invalid token",
                 response
             );
@@ -65,38 +67,79 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
             return;
         }
 
-        if (verificationTokenType == EVerificationTokenType.DELETE_ACCOUNT_TOKEN) {
-            this.applicationEventPublisher.publishEvent(
-                new AccountDeleteRequestVerifiedEvent(account)
-            );
+        switch (verificationTokenType) {
+            case DELETE_ACCOUNT_TOKEN -> {
+                this.applicationEventPublisher.publishEvent(
+                    new AccountDeleteRequestVerifiedEvent(account)
+                );
 
-            this.redirect(
-                isAuthenticated,
-                false,
-                "Your account has been deleted successfully",
-                response
-            );
-        } else if (verificationTokenType == EVerificationTokenType.EMAIL_VERIFICATION_TOKEN) {
-            VerificationTokenInterceptor.CONSOLE_LOGGER.info(
-                "Setting {}'s account as verified...",
-                account.getUsername()
-            );
+                RedirectUtil.redirect(
+                    false,
+                    true,
+                    "Your account has been deleted successfully",
+                    response
+                );
+            }
+            case EMAIL_VERIFICATION_TOKEN -> {
+                VerificationTokenInterceptor.CONSOLE_LOGGER.info(
+                    "Setting {}'s account as verified...",
+                    account.getUsername()
+                );
 
-            account.setVerified(true);
+                account.setVerified(true);
 
-            this.accountsService.setAccountAsVerified(true, account);
+                this.accountsService.setAccountAsVerified(true, account);
 
-            VerificationTokenInterceptor.CONSOLE_LOGGER.info(
-                "{}'s account has been verified successfully...",
-                account.getUsername()
-            );
+                VerificationTokenInterceptor.CONSOLE_LOGGER.info(
+                    "{}'s account has been verified successfully...",
+                    account.getUsername()
+                );
 
-            this.redirect(
-                isAuthenticated,
-                false,
-                "Your account has been verified successfully",
-                response
-            );
+                RedirectUtil.redirect(
+                    isAuthenticated,
+                    true,
+                    "Your account has been verified successfully",
+                    response
+                );
+            }
+            case RESET_PASSWORD_TOKEN -> {
+                if (isAuthenticated) {
+                    response.sendRedirect(
+                        "/accounts/change-password"
+                    );
+
+                    return;
+                }
+
+                if (verificationToken.getUsesCount() == 1) {
+                    VerificationTokenInterceptor.CONSOLE_LOGGER.info(
+                        "Redirecting user {} to reset their password...",
+                        account.getUsername()
+                    );
+
+                    response.sendRedirect(
+                        "/auth/reset-password?token=" +
+                            request.getParameter("token") +
+                            "&type=" +
+                            verificationTokenType +
+                            "&username=" +
+                            account.getUsername()
+                    );
+                }
+            }
+            default -> {
+                VerificationTokenInterceptor.CONSOLE_LOGGER.error(
+                    "Token handling for {} not implemented yet, redirecting...",
+                    verificationTokenType
+                );
+
+                RedirectUtil.redirect(
+                    isAuthenticated,
+                    false,
+                    "Invalid token",
+                    response
+                );
+            }
         }
     }
 
@@ -110,60 +153,11 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
             "Pre-intercepting token verification request..."
         );
 
-        AccountEntity account;
-        UUID decryptedToken;
-        EVerificationTokenType verificationTokenType;
-
-        final AuthenticationDetails authenticationDetails = this.jwtAuthenticationValidationUtil.validateAuthentication(
-            request
+        final AccountEntity account = (AccountEntity) request.getAttribute("account");
+        final boolean isAuthenticated = (boolean) request.getAttribute("isAuthenticated");
+        final EVerificationTokenType verificationTokenType = (EVerificationTokenType) request.getAttribute(
+            "verificationTokenType"
         );
-        final boolean isAuthenticationValid = authenticationDetails != null;
-        final String username = request.getParameter("username");
-
-        request.setAttribute("isAuthenticated", isAuthenticationValid);
-
-        if (isAuthenticationValid) {
-            if (!authenticationDetails.account().getUsername().equals(username)) {
-                VerificationTokenInterceptor.CONSOLE_LOGGER.error(
-                    "Account username does not match with the username in the request, redirecting..."
-                );
-
-                response.sendRedirect(
-                    "/accounts/email-preferences?error=Invalid token"
-                );
-
-                return false;
-            }
-
-            account = authenticationDetails.account();
-        } else
-            account = (AccountEntity) this.userDetailsService.loadUserByUsername(
-                username
-            );
-
-        try {
-            decryptedToken = UUID.fromString(
-                this.cryptoUtil.decrypt(
-                    request.getParameter("token")
-                )
-            );
-            verificationTokenType = EVerificationTokenType.valueOf(
-                request.getParameter("type")
-            );
-        } catch (final IllegalArgumentException illegalArgumentException) {
-            VerificationTokenInterceptor.CONSOLE_LOGGER.error(
-                "Token type or encrypted token is invalid, redirecting..."
-            );
-
-            this.redirect(
-                isAuthenticationValid,
-                true,
-                "Invalid token",
-                response
-            );
-
-            return false;
-        }
 
         if (
             account.isVerified() &&
@@ -174,9 +168,9 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
                 account.getUsername()
             );
 
-            this.redirect(
-                isAuthenticationValid,
-                true,
+            RedirectUtil.redirect(
+                isAuthenticated,
+                false,
                 "Your account is already verified",
                 response
             );
@@ -184,44 +178,6 @@ public class VerificationTokenInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        request.setAttribute("account", account);
-        request.setAttribute("decryptedToken", decryptedToken);
-
         return true;
-    }
-
-    private void redirect(
-        final boolean isAuthenticated,
-        final boolean isInvalidToken,
-        final String message,
-        final HttpServletResponse response
-    ) throws IOException {
-        if (!isAuthenticated) {
-            if (isInvalidToken) {
-                response.sendRedirect(
-                    "/auth/login?error=" + message
-                );
-
-                return;
-            }
-
-            response.sendRedirect(
-                "/auth/login?success=" + message
-            );
-
-            return;
-        }
-
-        if (isInvalidToken) {
-            response.sendRedirect(
-                "/accounts/email-preferences?error=" + message
-            );
-
-            return;
-        }
-
-        response.sendRedirect(
-            "/accounts/email-preferences?success=" + message
-        );
     }
 }

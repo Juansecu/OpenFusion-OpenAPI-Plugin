@@ -1,6 +1,6 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.auth;
 
-import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.ForgotPasswordReqDto;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +10,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.ForgotPasswordReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.LoginReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.RegisterReqDto;
+import com.juansecu.openfusion.openfusionopenapiplugin.auth.models.dtos.requests.ResetPasswordReqDto;
+import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.enums.EVerificationTokenType;
 
 @Controller
 @RequestMapping("/auth")
@@ -94,6 +98,41 @@ public class AuthenticationViewController {
             registerReqDto,
             bindingResult,
             model
+        );
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPassword(
+        final ResetPasswordReqDto resetPasswordReqDto,
+        @RequestParam("token") final String token,
+        @RequestParam("type") final EVerificationTokenType verificationTokenType,
+        @RequestParam("username") final String username,
+        final HttpServletRequest request
+    ) {
+        return this.authenticationService.resetPassword(request);
+    }
+
+    @PostMapping(
+        consumes = "application/x-www-form-urlencoded",
+        path = "/reset-password"
+    )
+    public String resetPassword(
+        @Valid
+        final ResetPasswordReqDto resetPasswordReqDto,
+        @RequestParam("token") final String token,
+        @RequestParam("type") final EVerificationTokenType verificationTokenType,
+        @RequestParam("username") final String username,
+        final BindingResult bindingResult,
+        final Model model,
+        final HttpServletRequest request
+    ) {
+        return this.authenticationService.resetPassword(
+            resetPasswordReqDto,
+            verificationTokenType,
+            username,
+            bindingResult,
+            model,
+            request
         );
     }
 }

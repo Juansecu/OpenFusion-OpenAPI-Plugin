@@ -38,6 +38,12 @@ public class VerificationTokenEntity {
     @Enumerated(EnumType.STRING)
     @NonNull
     private EVerificationTokenType type;
+    @Column(
+        columnDefinition = "INTEGER",
+        name = "UsesCount",
+        nullable = false
+    )
+    private int usesCount = 0;
     @JoinColumn(
         columnDefinition = "INTEGER",
         name = "AccountID",
