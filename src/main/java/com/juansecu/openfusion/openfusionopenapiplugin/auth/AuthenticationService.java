@@ -58,7 +58,9 @@ public class AuthenticationService {
     private final VerificationTokensService verificationTokensService;
 
     public BasicResDto authenticate(final LoginReqDto loginReqDto) {
-        UserDetails account;
+        final UserDetails account = this.userDetailsService.loadUserByUsername(
+            loginReqDto.getUsername()
+        );
 
         this.authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
@@ -67,12 +69,10 @@ public class AuthenticationService {
             )
         );
 
-        account = this.userDetailsService.loadUserByUsername(loginReqDto.getUsername());
-
         return new BasicResDto(
             true,
             null,
-            "User authenticated successfully",
+            "Account authenticated successfully",
             new AuthenticationDataResDto(
                 this.jwtAdapter.generateJsonWebToken(
                     account.getUsername(),
@@ -318,9 +318,7 @@ public class AuthenticationService {
                 ),
                 HttpStatus.CONFLICT
             );
-        }
-
-        if (accountWithGivenUsername != null) {
+        } else if (accountWithGivenUsername != null) {
             AuthenticationService.CONSOLE_LOGGER.error(
                 "Username is already in use"
             );

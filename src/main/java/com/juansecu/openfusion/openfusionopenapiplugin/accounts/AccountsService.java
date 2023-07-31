@@ -145,7 +145,10 @@ public class AccountsService {
             .orElse(null);
     }
 
-    public void setAccountAsVerified(final boolean shouldVerifyAccount, final AccountEntity account) {
+    public void setAccountAsVerified(
+        final boolean shouldVerifyAccount,
+        final AccountEntity account
+    ) {
         account.setVerified(shouldVerifyAccount);
         this.accountsRepository.save(account);
     }
