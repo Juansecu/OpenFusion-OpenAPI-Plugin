@@ -15,7 +15,7 @@ OpenAPI definition plugin for [OpenFusion](https://github.com/OpenFusionProject/
     | Variable                          | Description                                                              | Required | Default          | Example                                        |
     | --------------------------------- | ------------------------------------------------------------------------ | -------- | ---------------- | ---------------------------------------------- |
     | `DATABASE_PATH`                   | The path to the OpenFusion database to connect                           | Yes      | None             | `C:\Users\user\Desktop\OpenFusion\database.db` |
-    | `ISSUER`                          | The name of the entity that will provide JSON Web Tokens and send emails | No       | `OpenFusion`     | `Great Fusion`                                 |
+    | `ISSUER_NAME`                     | The name of the entity that will provide JSON Web Tokens and send emails | Yes      | None             | `Great Fusion`                                 |
     | `JWT_SECRET`                      | The secret to sign/verify JSON Web Tokens                                | Yes      | None             | `<JSON Web Token Secret>`                      |
     | `MAIL_SERVER_HOST`                | The host address where the SMTP server is running on                     | No       | `smtp.gmail.com` | `smtp.gmail.com`                               |
     | `MAIL_SERVER_PASSWORD`            | The password of the user who will send e-mails                           | Yes      | None             | `<mail server password>`                       |
