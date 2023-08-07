@@ -57,6 +57,68 @@ The API documentation is available at the endpoint `/docs`.
 
 The user interface is available at the endpoint `/auth/login`.
 
+## Running
+
+### Using Docker (Recommended)
+
+In order to run the application using [Docker](https://www.docker.com/),
+you must have Docker installed on your machine.
+
+For running the application with Docker, you will need to mount both
+the database and the SSL key store files using Docker volumes
+and map port `8080` to your host machine.
+
+#### Docker CLI
+
+- **Windows**
+
+    ```shell
+    > docker run -dp 8080:8080 \
+        -v <path\to\database>:${DATABASE_PATH} \
+        -v <path\to\keystore>:${SSL_KEY_STORE} \
+        --env-file <path\to\env\file> \
+        --name <container-name> \
+        juansecu/openfusion-openapi-plugin:v<version number>
+    ```
+
+- **MacOS/Linux**
+
+    ```shell
+    $ docker run -dp 8080:8080 \
+        -v <path/to/database>:${DATABASE_PATH} \
+        -v <path/to/keystore>:${SSL_KEY_STORE} \
+        --env-file <path/to/env/file> \
+        --name <container-name> \
+        juansecu/openfusion-openapi-plugin:v<version number>
+    ```
+
+#### Docker Compose
+
+For running the application with Docker Compose,
+you can use the
+[Docker Compose file](https://github.com/Juansecu/OpenFusion-OpenAPI-Plugin/blob/main/docker-compose.yml)
+provided in this repository, but you will also need to
+remove the `build` property from the `openapi` service,
+change the `image` property to `juansecu/openfusion-openapi-plugin:v<version number>`
+and configure the following environment variables:
+
+- `LOCAL_DATABASE_PATH` - The path in the host machine to the OpenFusion database to connect
+- `LOCAL_SSL_KEY_STORE` - The path in the host machine to the keystore file
+
+After configuring the environment variables, you can run the application using the following command:
+
+- **Docker Compose v1**
+
+```shell
+$ docker-compose up -d
+```
+
+- **Docker Compose v2**
+
+```shell
+$ docker compose up -d
+```
+
 ## Special Thanks
 
 - **CakeCancelot** - For clarifying some doubts about the differences
