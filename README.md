@@ -8,7 +8,11 @@ OpenAPI definition plugin for [OpenFusion](https://github.com/OpenFusionProject/
 
 - **Database -** An existent SQLite database of OpenFusion
 
+- **SSL _(Secure Sockets Layer)_ Key Store -** A keystore file that contains a private key and a certificate
+
 - SMTP _(Simple Mail Transfer Protocol)_ Server that supports MIME messages and TLS connections
+
+- Port `8080` available
 
 - **Environment variables**
 
@@ -51,7 +55,7 @@ The API documentation is available at the endpoint `/docs`.
 
 ## User Interface
 
-The user interface is available at the endpoint `/auth/register`.
+The user interface is available at the endpoint `/auth/login`.
 
 ## Special Thanks
 
