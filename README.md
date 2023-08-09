@@ -13,8 +13,6 @@ based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
 
 - SMTP _(Simple Mail Transfer Protocol)_ Server that supports MIME messages and TLS connections
 
-- Port `8080` available
-
 - **Environment variables**
 
     | Variable                          | Description                                                              | Required | Default          | Example                                        |
@@ -26,6 +24,7 @@ based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
     | `MAIL_SERVER_PASSWORD`            | The password of the user who will send e-mails                           | Yes      | None             | `<mail server password>`                       |
     | `MAIL_SERVER_PORT`                | The port where the SMTP server is running on                             | No       | `587`            | `587`                                          |
     | `MAIL_SERVER_USERNAME`            | The user who will be used to send e-mails                                | Yes      | None             | `example_user@gmail.com`                       |
+    | `PORT`                            | The port where the application will run on                               | No       | `443`            | `8080`                                         |
     | `SSL_KEY_ALIAS`                   | The alias under which the key is stored in the keystore                  | Yes      | None             | `<ssl key alias>`                              |
     | `SSL_KEY_STORE`                   | The path to the keystore file                                            | Yes      | None             | `<ssl key store>`                              |
     | `SSL_KEY_STORE_PASSWORD`          | The password of the keystore                                             | Yes      | None             | `<ssl key store password>`                     |
