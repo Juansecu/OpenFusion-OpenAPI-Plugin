@@ -15,22 +15,24 @@ based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
 
 - **Environment variables**
 
-    | Variable                          | Description                                                              | Required | Default          | Example                                        |
-    | --------------------------------- | ------------------------------------------------------------------------ | -------- | ---------------- | ---------------------------------------------- |
-    | `DATABASE_PATH`                   | The path to the OpenFusion database to connect                           | Yes      | None             | `C:\Users\user\Desktop\OpenFusion\database.db` |
-    | `ISSUER_NAME`                     | The name of the entity that will provide JSON Web Tokens and send emails | Yes      | None             | `Great Fusion`                                 |
-    | `JWT_SECRET`                      | The secret to sign/verify JSON Web Tokens                                | Yes      | None             | `<JSON Web Token Secret>`                      |
-    | `MAIL_SERVER_HOST`                | The host address where the SMTP server is running on                     | No       | `smtp.gmail.com` | `smtp.gmail.com`                               |
-    | `MAIL_SERVER_PASSWORD`            | The password of the user who will send e-mails                           | Yes      | None             | `<mail server password>`                       |
-    | `MAIL_SERVER_PORT`                | The port where the SMTP server is running on                             | No       | `587`            | `587`                                          |
-    | `MAIL_SERVER_USERNAME`            | The user who will be used to send e-mails                                | Yes      | None             | `example_user@gmail.com`                       |
-    | `PORT`                            | The port where the application will run on                               | No       | `443`            | `8080`                                         |
-    | `SSL_KEY_ALIAS`                   | The alias under which the key is stored in the keystore                  | Yes      | None             | `<ssl key alias>`                              |
-    | `SSL_KEY_STORE`                   | The path to the keystore file                                            | Yes      | None             | `<ssl key store>`                              |
-    | `SSL_KEY_STORE_PASSWORD`          | The password of the keystore                                             | Yes      | None             | `<ssl key store password>`                     |
-    | `SSL_KEY_STORE_TYPE`              | The type of the keystore                                                 | Yes      | None             | `<ssl key store type>`                         |
-    | `VERIFICATION_TOKEN_SALT_KEY`     | The salt key to encrypt and decrypt verification tokens                  | Yes      | None             | `<verification token salt key>`                |
-    | `VERIFICATION_TOKEN_SECURITY_KEY` | The key to encrypt and decrypt verification tokens                       | Yes      | None             | `<verification token security key>`            |
+    | Variable                          | Type    | Description                                                              | Required | Default          | Example                                        |
+    | --------------------------------- | ------- | ------------------------------------------------------------------------ | -------- | ---------------- | ---------------------------------------------- |
+    | `DATABASE_PATH`                   | String  | The path to the OpenFusion database to connect                           | Yes      | None             | `C:\Users\user\Desktop\OpenFusion\database.db` |
+    | `ISSUER_NAME`                     | Strimg  | The name of the entity that will provide JSON Web Tokens and send emails | Yes      | None             | `Great Fusion`                                 |
+    | `JWT_SECRET`                      | String  | The secret to sign/verify JSON Web Tokens                                | Yes      | None             | `<JSON Web Token Secret>`                      |
+    | `MAIL_SERVER_HOST`                | String  | The host address where the SMTP server is running on                     | No       | `smtp.gmail.com` | `smtp.gmail.com`                               |
+    | `MAIL_SERVER_PASSWORD`            | String  | The password of the user who will send e-mails                           | Yes      | None             | `<mail server password>`                       |
+    | `MAIL_SERVER_PORT`                | Integer | The port where the SMTP server is running on                             | No       | `587`            | `587`                                          |
+    | `MAIL_SERVER_USERNAME`            | String  | The user who will be used to send e-mails                                | Yes      | None             | `example_user@gmail.com`                       |
+    | `PORT`                            | Integer | The port where the application will run on                               | No       | `443`            | `8080`                                         |
+    | `PUBLIC_HOST_ADDRESS`             | String  | The host address where the application will run on                       | No       | `localhost`      | `example.com`                                  |
+    | `SHOULD_INCLUDE_SERVER_PORT`      | Boolean | Whether the server port should be included in the host address           | No       | `true`           | `false`                                        |
+    | `SSL_KEY_ALIAS`                   | String  | The alias under which the key is stored in the keystore                  | Yes      | None             | `<ssl key alias>`                              |
+    | `SSL_KEY_STORE`                   | String  | The path to the keystore file                                            | Yes      | None             | `<ssl key store>`                              |
+    | `SSL_KEY_STORE_PASSWORD`          | String  | The password of the keystore                                             | Yes      | None             | `<ssl key store password>`                     |
+    | `SSL_KEY_STORE_TYPE`              | String  | The type of the keystore                                                 | Yes      | None             | `<ssl key store type>`                         |
+    | `VERIFICATION_TOKEN_SALT_KEY`     | String  | The salt key to encrypt and decrypt verification tokens                  | Yes      | None             | `<verification token salt key>`                |
+    | `VERIFICATION_TOKEN_SECURITY_KEY` | String  | The key to encrypt and decrypt verification tokens                       | Yes      | None             | `<verification token security key>`            |
 
     <br>
     
@@ -43,6 +45,8 @@ based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
       such as [Random Key Gen](https://randomkeygen.com/)
       or [All Keys Generator](https://www.allkeysgenerator.com/Random/Security-Encryption-Key-Generator.aspx).
       256-bit keys are recommended.
+    - For setting the `PUBLIC_HOST_ADDRESS` environment variable,
+      you can use your domain name or your public IP address.
     - For security reasons, it is recommended to use a dedicated e-mail account to send e-mails.
     - For security reasons,
       `VERIFICATION_TOKEN_SALT_KEY` and `VERIFICATION_TOKEN_SECURITY_KEY`

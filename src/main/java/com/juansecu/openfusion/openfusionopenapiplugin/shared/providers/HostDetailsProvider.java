@@ -1,42 +1,29 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.shared.providers;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public final class HostDetailsProvider {
-    private static final Logger CONSOLE_LOGGER = LogManager.getLogger(HostDetailsProvider.class);
-
+    @Value("${PUBLIC_HOST_ADDRESS:localhost}")
+    private String publicHostAddress;
+    @Value("${SHOULD_INCLUDE_SERVER_PORT:true}")
+    private boolean shouldIncludeServerPort;
     @Value("${server.port}")
     private int port;
 
-    private HostDetailsProvider() {}
-
     public String getHostAddress() {
-        try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException unknownHostException) {
-            HostDetailsProvider.CONSOLE_LOGGER.error(
-                String.format(
-                    "There was an error while trying to retrieve the host information:%n%s",
-                    unknownHostException
-                )
-            );
-
-            return null;
-        }
+        return this.publicHostAddress.trim();
     }
 
     public String getHostPath() {
         return "https://" +
             this.getHostAddress() +
-            ":" +
-            this.getServerPort();
+            (
+                this.shouldIncludeServerPort
+                    ? ":" + this.getServerPort()
+                    : ""
+            );
     }
 
     public int getServerPort() {
