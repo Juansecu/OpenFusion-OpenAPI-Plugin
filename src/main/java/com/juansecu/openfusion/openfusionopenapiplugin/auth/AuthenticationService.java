@@ -24,6 +24,7 @@ import org.springframework.validation.BindingResult;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.AccountsService;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountServiceError;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.AccountRegisterEvent;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.PasswordChangeEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.entities.AccountEntity;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.repositories.IAccountsRepository;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.events.ForgotPasswordRequestProcessedEvent;
@@ -418,6 +419,19 @@ public class AuthenticationService {
         AccountEntity account;
         boolean isInvalidToken;
 
+        final VerificationTokenEntity verificationToken = (VerificationTokenEntity) request.getAttribute(
+            VerificationTokensService.VERIFICATION_TOKEN_ATTRIBUTE_KEY
+        );
+
+        if (verificationToken.getUsesCount() != 1) {
+            model.addAttribute(
+                "error",
+                "Invalid token"
+            );
+
+            return "forgot-password";
+        }
+
         AuthenticationService.CONSOLE_LOGGER.info(
             "Verifying {} token for user {}...",
             verificationTokenType,
@@ -461,6 +475,10 @@ public class AuthenticationService {
         AuthenticationService.CONSOLE_LOGGER.info(
             "Password reset for user {} successful",
             account.getUsername()
+        );
+
+        this.applicationEventPublisher.publishEvent(
+            new PasswordChangeEvent(account)
         );
 
         return "redirect:/auth/login?success=You+have+reset+your+password+successfully%21";
