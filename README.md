@@ -195,6 +195,11 @@ and run the application using the following command:
     $ java -jar ./openfusion-openapi-plugin-<version number>.jar
     ```
 
+## Changelog
+
+All notable changes to this project are documented in the
+[CHANGELOG.md](CHANGELOG.md) file.
+
 ## Special Thanks
 
 - **CakeCancelot** - For clarifying some doubts about the differences
