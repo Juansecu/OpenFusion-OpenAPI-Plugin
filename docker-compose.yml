@@ -23,5 +23,4 @@ services:
       - 443:443
     volumes:
       - ${LOCAL_DATABASE_PATH}:${DATABASE_PATH}
-      - ${LOCAL_SSL_KEY_STORE}:${SSL_KEY_STORE}
-    read_only: true
+      - ${LOCAL_SSL_KEY_STORE}:${SSL_KEY_STORE}:ro
