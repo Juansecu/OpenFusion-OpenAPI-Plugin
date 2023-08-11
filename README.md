@@ -127,6 +127,74 @@ $ docker-compose up -d
 $ docker compose up -d
 ```
 
+### Using Java
+
+For running the application with Java,
+you will need to set the necessary environment variables
+and follow the instructions below.
+
+#### For Development
+
+In order to run the application for development,
+you will need to clone this repository,
+compile the application and run it using the following commands:
+
+- **Windows**
+
+    ```shell
+    # --- BUILDING ---
+
+    # For building the application without running tests
+    > .\mvnw package -DskipTests
+
+    # For building the application and running tests (not working yet)
+    > .\mvnw package
+
+
+    # --- RUNNING ---
+
+    # For running the application
+    > java -jar .\target\openfusion-openapi-plugin-<version number>.jar
+    ```
+  
+- **MacOS/Linux**
+
+    ```shell
+    # --- BUILDING ---
+
+    # For building the application without running tests
+    $ ./mvnw package -DskipTests
+
+    # For building the application and running tests (not working yet)
+    $ ./mvnw package
+
+
+    # --- RUNNING ---
+
+    # For running the application
+    $ java -jar ./target/openfusion-openapi-plugin-<version number>.jar
+    ```
+
+#### For Production
+
+In order to run the application for production,
+you will only need to download the latest release
+from the [releases page](https://github.com/Juansecu/OpenFusion-OpenAPI-Plugin/releases),
+set the necessary environment variables
+and run the application using the following command:
+
+- **Windows**
+
+    ```shell
+    > java -jar .\openfusion-openapi-plugin-<version number>.jar
+    ```
+
+- **MacOS/Linux**
+
+    ```shell
+    $ java -jar ./openfusion-openapi-plugin-<version number>.jar
+    ```
+
 ## Special Thanks
 
 - **CakeCancelot** - For clarifying some doubts about the differences
