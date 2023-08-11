@@ -341,7 +341,9 @@ public class AuthenticationService {
             registerReqDto.getPassword()
         );
 
-        newAccount.setPassword(this.passwordEncoder.encode(newAccount.getPassword()));
+        newAccount.setPassword(
+            this.passwordEncoder.encode(newAccount.getPassword())
+        );
 
         AuthenticationService.CONSOLE_LOGGER.info(
             "Registering user: {}...",

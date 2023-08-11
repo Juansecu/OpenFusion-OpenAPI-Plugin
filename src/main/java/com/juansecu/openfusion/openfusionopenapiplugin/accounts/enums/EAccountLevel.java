@@ -1,6 +1,8 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums;
 
-public enum EAccountLevel {
+import com.juansecu.openfusion.openfusionopenapiplugin.shared.enums.IEnumValueRetrievable;
+
+public enum EAccountLevel implements IEnumValueRetrievable<Integer> {
     CLOSED_BETA_USER(80),
     CUSTOMER_SERVICE(40),
     DEVELOPER(50),
@@ -17,5 +19,10 @@ public enum EAccountLevel {
 
     EAccountLevel(final int accountLevel) {
         this.accountLevel = accountLevel;
+    }
+
+    @Override
+    public Integer getValue() {
+        return this.accountLevel;
     }
 }
