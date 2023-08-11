@@ -1,0 +1,51 @@
+name: Deliver application
+
+on:
+  push:
+    tags:
+      - 'v*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          cache: maven
+      - name: Build artifact with Maven
+        run: mvn -B -U package -DskipTests
+      - name: Release artifact
+        uses: softprops/action-gh-release@v1
+        with:
+          body: Version ${{ github.ref }} of the OpenFusion OpenAPI Plugin.
+          body_path: ./CHANGELOG.md
+          files: |
+            target/OpenFusion-OpenAPI-Plugin-*.jar
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
+  push-docker-image:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        docker-repository: [juansecu/openfusion-openapi-plugin]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ matrix.docker-repository }}:${{ github.ref }},${{ matrix.docker-repository }}:latest
