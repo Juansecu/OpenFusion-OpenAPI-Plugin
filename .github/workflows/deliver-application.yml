@@ -3,7 +3,7 @@ name: Deliver application
 on:
   push:
     tags:
-      - 'v*.*'
+      - 'v*.*.*'
 
 jobs:
   build:
