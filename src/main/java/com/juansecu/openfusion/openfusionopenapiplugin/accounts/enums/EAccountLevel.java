@@ -13,7 +13,7 @@ public enum EAccountLevel {
     QA(20),
     USER(99);
 
-    public final int accountLevel;
+    private final int accountLevel;
 
     EAccountLevel(final int accountLevel) {
         this.accountLevel = accountLevel;
