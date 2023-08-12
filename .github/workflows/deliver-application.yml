@@ -23,7 +23,7 @@ jobs:
       - name: Release artifact
         uses: softprops/action-gh-release@v1
         with:
-          body: Version ${{ github.ref }} of the OpenFusion OpenAPI Plugin.
+          body: Version ${{ github.ref_name }} of the OpenFusion OpenAPI Plugin.
           body_path: ./CHANGELOG.md
           files: |
             target/openfusion-openapi-plugin-*.jar
@@ -50,4 +50,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ matrix.docker-repository }}:${{ github.ref }},${{ matrix.docker-repository }}:latest
+          tags: ${{ matrix.docker-repository }}:${{ github.ref_name }},${{ matrix.docker-repository }}:latest
