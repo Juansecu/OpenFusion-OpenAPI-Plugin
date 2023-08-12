@@ -17,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountServiceError;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.AccountDeleteRequestProcessedEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.EmailUpdateEvent;
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.events.PasswordChangeEvent;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.DeleteAccountReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdateEmailReqDto;
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.models.dtos.requests.UpdatePasswordReqDto;
@@ -81,13 +82,13 @@ public class AccountsService {
             );
         }
 
-        this.applicationEventPublisher.publishEvent(
-            new AccountDeleteRequestProcessedEvent(account)
-        );
-
         AccountsService.CONSOLE_LOGGER.info(
             "Account delete request for user {} was processed successfully",
             account.getUsername()
+        );
+
+        this.applicationEventPublisher.publishEvent(
+            new AccountDeleteRequestProcessedEvent(account)
         );
 
         return new ResponseEntity<>(
@@ -346,6 +347,10 @@ public class AccountsService {
 
         AccountsService.CONSOLE_LOGGER.info(
             "Password updated successfully"
+        );
+
+        this.applicationEventPublisher.publishEvent(
+            new PasswordChangeEvent(account)
         );
 
         return ResponseEntity.ok(

@@ -11,7 +11,7 @@ public enum EAccountServiceError {
     USER_NOT_FOUND("USER_NOT_FOUND"),
     USERNAME_IN_USE("USERNAME_IN_USE");
 
-    public final String accountServiceError;
+    private final String accountServiceError;
 
     EAccountServiceError(final String accountServiceError) {
         this.accountServiceError = accountServiceError;

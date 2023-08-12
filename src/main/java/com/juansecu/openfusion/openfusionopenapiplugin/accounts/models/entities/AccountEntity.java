@@ -60,7 +60,6 @@ public class AccountEntity implements UserDetails {
         name = "AccountLevel",
         nullable = false
     )
-    @Enumerated(EnumType.ORDINAL)
     private EAccountLevel accountLevel = EAccountLevel.USER;
     @Column(
         columnDefinition = "INTEGER DEFAULT 0",
