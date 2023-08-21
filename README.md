@@ -51,6 +51,9 @@ based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
     - For security reasons,
       `VERIFICATION_TOKEN_SALT_KEY` and `VERIFICATION_TOKEN_SECURITY_KEY`
       must be different from each other.
+    - For setting up the `MAIL_SERVER_*` environment variables,
+      check out the [SMTP Server](https://github.com/Juansecu/OpenFusion-OpenAPI-Plugin/wiki/Setting-up#smtp-server)
+      setup section.
 
 ## Features
 
