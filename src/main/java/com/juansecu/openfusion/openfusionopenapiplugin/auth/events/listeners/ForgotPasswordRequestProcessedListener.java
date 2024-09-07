@@ -50,7 +50,7 @@ public class ForgotPasswordRequestProcessedListener implements ApplicationListen
         );
 
         if (
-            !this.emailService.sendSimpleMessage(
+            !this.emailService.sendSimpleAccountManagementMessage(
                 verificationEmailMessage,
                 this.resetPasswordEmailMessageSubject,
                 account.getEmail()

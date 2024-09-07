@@ -48,7 +48,7 @@ public class EmailUpdateListener implements ApplicationListener<EmailUpdateEvent
         );
 
         if (
-            !this.emailService.sendSimpleMessage(
+            !this.emailService.sendSimpleAccountManagementMessage(
                 verificationEmailMessage,
                 this.updateAccountEmailMessageSubject,
                 account.getEmail()

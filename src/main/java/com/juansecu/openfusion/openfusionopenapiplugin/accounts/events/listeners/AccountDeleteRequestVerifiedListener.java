@@ -45,7 +45,7 @@ public class AccountDeleteRequestVerifiedListener implements ApplicationListener
         );
 
         if (
-            !this.emailService.sendSimpleMessage(
+            !this.emailService.sendSimpleAccountManagementMessage(
                 confirmationEmailMessage,
                 this.deleteAccountConfirmationSubject,
                 account.getEmail()

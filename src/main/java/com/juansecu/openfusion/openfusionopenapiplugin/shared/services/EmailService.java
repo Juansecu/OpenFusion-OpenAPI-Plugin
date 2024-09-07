@@ -18,12 +18,26 @@ public class EmailService {
 
     @Value("${issuer.name}")
     private String issuer;
-    @Value("${spring.mail.username}")
-    private String fromEmailAddress;
+    @Value("${mail.from-account-related-email-address}")
+    private String fromAccountRelatedEmailAddress;
 
     private final JavaMailSender mailSender;
 
-    public boolean sendSimpleMessage(
+    public boolean sendSimpleAccountManagementMessage(
+        final String message,
+        final String subject,
+        final String to
+    ) {
+        return this.sendSimpleMessage(
+            this.fromAccountRelatedEmailAddress,
+            message,
+            subject,
+            to
+        );
+    }
+
+    private boolean sendSimpleMessage(
+        final String from,
         final String message,
         final String subject,
         final String to
@@ -34,7 +48,7 @@ public class EmailService {
             mimeMessage.setFrom(
                 this.issuer.trim() +
                     " <" +
-                    this.fromEmailAddress.trim() +
+                    from.trim() +
                     ">"
             );
             mimeMessage.setRecipients(Message.RecipientType.TO, to);

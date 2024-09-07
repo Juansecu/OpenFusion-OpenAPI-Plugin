@@ -48,7 +48,7 @@ public class AccountRegisterListener implements ApplicationListener<AccountRegis
         );
 
         if (
-            !this.emailService.sendSimpleMessage(
+            !this.emailService.sendSimpleAccountManagementMessage(
                 verificationEmailMessage,
                 this.newAccountEmailVerificationSubject,
                 newAccount.getEmail()

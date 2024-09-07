@@ -37,7 +37,7 @@ public class PasswordChangeListener implements ApplicationListener<PasswordChang
         );
 
         if (
-            !this.emailService.sendSimpleMessage(
+            !this.emailService.sendSimpleAccountManagementMessage(
                 passwordChangeNotificationMessage,
                 this.changePasswordMessageSubject,
                 account.getEmail()

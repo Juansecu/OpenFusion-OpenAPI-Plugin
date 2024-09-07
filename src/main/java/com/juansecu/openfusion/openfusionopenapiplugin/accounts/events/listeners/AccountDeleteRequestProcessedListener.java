@@ -50,7 +50,7 @@ public class AccountDeleteRequestProcessedListener implements ApplicationListene
         );
 
         if (
-            !this.emailService.sendSimpleMessage(
+            !this.emailService.sendSimpleAccountManagementMessage(
                 verificationEmailMessage,
                 this.deleteAccountRequestSubject,
                 account.getEmail()
