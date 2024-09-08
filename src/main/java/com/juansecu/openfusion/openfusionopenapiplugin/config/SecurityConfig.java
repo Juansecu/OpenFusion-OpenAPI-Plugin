@@ -4,11 +4,13 @@ import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountLe
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,6 +31,9 @@ import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.filter
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    @Value("${server.headers.content-security-policy}")
+    private String contentSecurityPolicy;
+
     @Autowired
     @Qualifier("delegatedAuthenticationEntryPoint")
     private AuthenticationEntryPoint authenticationEntryPoint;
@@ -63,6 +68,13 @@ public class SecurityConfig {
     ) throws Exception {
         httpSecurity
             .csrf(AbstractHttpConfigurer::disable)
+            .headers(headers ->
+                headers
+                    .contentSecurityPolicy(csp ->
+                        csp.policyDirectives(this.contentSecurityPolicy)
+                    )
+                    .xssProtection(Customizer.withDefaults())
+            )
             .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                 authorizationManagerRequestMatcherRegistry
                     .requestMatchers(

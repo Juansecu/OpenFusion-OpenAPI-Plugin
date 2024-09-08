@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" th:href="@{/static/css/authentication.css}" />
     <link rel="stylesheet" th:href="@{/static/css/forms.css}" />
+    <link rel="stylesheet" th:href="@{/static/css/login.css}" />
     <link rel="stylesheet" th:href="@{/static/css/main.css}" />
 </head>
 <body>
@@ -67,8 +68,7 @@
 
             <a
                 th:href="@{/auth/forgot-password}"
-                class="form__link--danger"
-                style="align-self: center; margin-top: 1.5rem;"
+                class="forgot-password-link form__link--danger"
             >
                 <span th:text="#{password.forgot-password.link}"></span>
             </a>
