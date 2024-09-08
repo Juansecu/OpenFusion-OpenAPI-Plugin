@@ -81,7 +81,7 @@ public class ForgotPasswordRequestProcessedListener implements ApplicationListen
             )
             .replace(
                 "{reset_password_link}",
-                this.hostDetailsProvider.getHostPath() +
+                this.hostDetailsProvider.getPublicAddress() +
                     "/api/verification-tokens/verify?token=" +
                     encryptedToken +
                     "&type=" +

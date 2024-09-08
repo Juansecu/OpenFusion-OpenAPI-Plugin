@@ -60,8 +60,6 @@ public class SecurityConfig {
         final HttpSecurity httpSecurity
     ) throws Exception {
         httpSecurity.csrf().disable()
-            .requiresChannel().anyRequest().requiresSecure()
-            .and()
             .authorizeHttpRequests().requestMatchers(
                 "/api-docs/**",
                 "/api/auth/**",

@@ -79,7 +79,7 @@ public class EmailUpdateListener implements ApplicationListener<EmailUpdateEvent
             )
             .replace(
                 "{update_email_link}",
-                this.hostDetailsProvider.getHostPath() +
+                this.hostDetailsProvider.getPublicAddress() +
                     "/api/verification-tokens/verify?token=" +
                     encryptedToken +
                     "&type=" +

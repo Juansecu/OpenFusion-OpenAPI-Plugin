@@ -75,7 +75,7 @@ public class AccountDeleteRequestProcessedListener implements ApplicationListene
         return this.deleteAccountRequestMessage
             .replace(
                 "{delete_account_link}",
-                this.hostDetailsProvider.getHostPath() +
+                this.hostDetailsProvider.getPublicAddress() +
                     "/api/verification-tokens/verify?token=" +
                     encryptedToken +
                     "&type=" +

@@ -80,7 +80,7 @@ public class AccountRegisterListener implements ApplicationListener<AccountRegis
             .replace("{username}", username)
             .replace(
                 "{verify_account_link}",
-                this.hostDetailsProvider.getHostPath() +
+                this.hostDetailsProvider.getPublicAddress() +
                     "/api/verification-tokens/verify?token=" +
                     encryptedToken +
                     "&type=" +

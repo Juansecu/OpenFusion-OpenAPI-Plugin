@@ -5,28 +5,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public final class HostDetailsProvider {
-    @Value("${PUBLIC_HOST_ADDRESS:localhost}")
-    private String publicHostAddress;
-    @Value("${SHOULD_INCLUDE_SERVER_PORT:true}")
-    private boolean shouldIncludeServerPort;
-    @Value("${server.port}")
-    private int port;
+    @Value("${server.public-address}")
+    private String publicAddress;
 
-    public String getHostAddress() {
-        return this.publicHostAddress.trim();
-    }
-
-    public String getHostPath() {
-        return "https://" +
-            this.getHostAddress() +
-            (
-                this.shouldIncludeServerPort
-                    ? ":" + this.getServerPort()
-                    : ""
-            );
-    }
-
-    public int getServerPort() {
-        return this.port;
+    public String getPublicAddress() {
+        return this.publicAddress;
     }
 }

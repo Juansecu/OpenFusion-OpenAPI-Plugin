@@ -1,4 +1,4 @@
-# OpenFusion-OpenAPI-Plugin
+# OpenFusion OpenAPI Plugin
 
 OpenAPI definition plugin for server applications
 based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
@@ -15,25 +15,20 @@ based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
 
 - **Environment variables**
 
-    | Variable                                         | Type    | Description                                                                        | Required | Default          | Example                                        |
-    |--------------------------------------------------|---------|------------------------------------------------------------------------------------|----------|------------------|------------------------------------------------|
-    | `DATABASE_PATH`                                  | String  | The path to the OpenFusion database to connect                                     | Yes      | None             | `C:\Users\user\Desktop\OpenFusion\database.db` |
-    | `ISSUER_NAME`                                    | Strimg  | The name of the entity that will provide JSON Web Tokens and send emails           | Yes      | None             | `Great Fusion`                                 |
-    | `JWT_SECRET`                                     | String  | The secret to sign/verify JSON Web Tokens                                          | Yes      | None             | `<JSON Web Token Secret>`                      |
-    | `MAIL_SERVER_FROM_ACCOUNT_RELATED_EMAIL_ADDRESS` | String  | The e-mail address that will be used to send e-mails related to account management | Yes      | None             | `example_user@gmail.com`                       |
-    | `MAIL_SERVER_HOST`                               | String  | The host address where the SMTP server is running on                               | No       | `smtp.gmail.com` | `smtp.gmail.com`                               |
-    | `MAIL_SERVER_PASSWORD`                           | String  | The password of the user who will send e-mails                                     | Yes      | None             | `<mail server password>`                       |
-    | `MAIL_SERVER_PORT`                               | Integer | The port where the SMTP server is running on                                       | No       | `587`            | `587`                                          |
-    | `MAIL_SERVER_USERNAME`                           | String  | The user who will be used to sign into the SMTP server                             | Yes      | None             | `example_user@gmail.com`                       |
-    | `PORT`                                           | Integer | The port where the application will run on                                         | No       | `443`            | `8080`                                         |
-    | `PUBLIC_HOST_ADDRESS`                            | String  | The host address where the application will run on                                 | No       | `localhost`      | `example.com`                                  |
-    | `SHOULD_INCLUDE_SERVER_PORT`                     | Boolean | Whether the server port should be included in the host address                     | No       | `true`           | `false`                                        |
-    | `SSL_KEY_ALIAS`                                  | String  | The alias under which the key is stored in the keystore                            | Yes      | None             | `<ssl key alias>`                              |
-    | `SSL_KEY_STORE`                                  | String  | The path to the keystore file                                                      | Yes      | None             | `<ssl key store>`                              |
-    | `SSL_KEY_STORE_PASSWORD`                         | String  | The password of the keystore                                                       | Yes      | None             | `<ssl key store password>`                     |
-    | `SSL_KEY_STORE_TYPE`                             | String  | The type of the keystore                                                           | Yes      | None             | `<ssl key store type>`                         |
-    | `VERIFICATION_TOKEN_SALT_KEY`                    | String  | The salt key to encrypt and decrypt verification tokens                            | Yes      | None             | `<verification token salt key>`                |
-    | `VERIFICATION_TOKEN_SECURITY_KEY`                | String  | The key to encrypt and decrypt verification tokens                                 | Yes      | None             | `<verification token security key>`            |
+    | Variable                                         | Type    | Description                                                                               | Required | Default                 | Example                                        |
+    |--------------------------------------------------|---------|-------------------------------------------------------------------------------------------|----------|-------------------------|------------------------------------------------|
+    | `DATABASE_PATH`                                  | String  | The path to the OpenFusion database to connect                                            | Yes      | None                    | `C:\Users\user\Desktop\OpenFusion\database.db` |
+    | `ISSUER_NAME`                                    | String  | The name of the entity that will provide JSON Web Tokens and send emails                  | Yes      | None                    | `Great Fusion`                                 |
+    | `JWT_SECRET`                                     | String  | The secret to sign/verify JSON Web Tokens                                                 | Yes      | None                    | `<JSON Web Token Secret>`                      |
+    | `MAIL_SERVER_FROM_ACCOUNT_RELATED_EMAIL_ADDRESS` | String  | The e-mail address that will be used to send e-mails related to account management        | Yes      | None                    | `example_user@gmail.com`                       |
+    | `MAIL_SERVER_HOST`                               | String  | The host address where the SMTP server is running on                                      | No       | `smtp.gmail.com`        | `smtp.gmail.com`                               |
+    | `MAIL_SERVER_PASSWORD`                           | String  | The password of the user who will send e-mails                                            | Yes      | None                    | `<mail server password>`                       |
+    | `MAIL_SERVER_PORT`                               | Integer | The port where the SMTP server is running on                                              | No       | `587`                   | `587`                                          |
+    | `MAIL_SERVER_USERNAME`                           | String  | The user who will be used to sign into the SMTP server                                    | Yes      | None                    | `example_user@gmail.com`                       |
+    | `PORT`                                           | Integer | The port where the application will run on                                                | No       | `8080`                  | `8080`                                         |
+    | `PUBLIC_ADDRESS`                                 | String  | The public address where clients and browsers will be able to access the application from | No       | `http://localhost:8080` | `https://example.com`                          |
+    | `VERIFICATION_TOKEN_SALT_KEY`                    | String  | The salt key to encrypt and decrypt verification tokens                                   | Yes      | None                    | `<verification token salt key>`                |
+    | `VERIFICATION_TOKEN_SECURITY_KEY`                | String  | The key to encrypt and decrypt verification tokens                                        | Yes      | None                    | `<verification token security key>`            |
 
     <br>
     
@@ -45,7 +40,7 @@ based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
     - You can generate secrets using tools
       like [Random Key Gen](https://randomkeygen.com/).
       256-bit keys are recommended.
-    - For setting the `PUBLIC_HOST_ADDRESS` environment variable,
+    - For setting the `PUBLIC_ADDRESS` environment variable,
       you can use your domain name or your public IP address.
     - For security reasons, it is recommended to use a dedicated e-mail account to send e-mails.
     - For security reasons,
@@ -54,6 +49,22 @@ based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
     - For setting up the `MAIL_SERVER_*` environment variables,
       check out the [SMTP Server](https://github.com/Juansecu/OpenFusion-OpenAPI-Plugin/wiki/Setting-up#smtp-server)
       setup section.
+
+## Configuration
+
+### SSL Configuration
+
+To enable SSL, you can use any of the following methods:
+
+- [Java KeyStore file](https://docs.spring.io/spring-boot/how-to/webserver.html#howto.webserver.configure-ssl).
+- [PEM files](https://docs.spring.io/spring-boot/how-to/webserver.html#howto.webserver.configure-ssl.pem-files).
+- [SSL Bundle](https://docs.spring.io/spring-boot/reference/features/ssl.html)
+
+Once you have chosen a method to enable SSL,
+you can pass the necessary JVM arguments to the application
+by passing each argument following the `-D` flag when running the application.
+
+Note that you can also use a reverse proxy (e.g. Nginx, Apache, etc.).
 
 ## Features
 
@@ -83,22 +94,40 @@ and map port `8080` to your host machine.
 - **Windows**
 
     ```shell
+    # For running the application without SSL
     > docker run -dp 8080:8080 \
         -v <path\to\database>:${DATABASE_PATH} \
-        -v <path\to\keystore>:${SSL_KEY_STORE} \
         --env-file <path\to\env\file> \
         --name <container-name> \
+        juansecu/openfusion-openapi-plugin:v<version number>
+
+    # For running the application with SSL
+    > docker run -dp 8080:8080 \
+        -v <path\to\database>:${DATABASE_PATH} \
+        <additional volumes for SSL certificates> \
+        --env-file <path\to\env\file> \
+        --name <container-name> \
+        --entrypoint "java <JVM arguments> -jar /app/app.jar" \
         juansecu/openfusion-openapi-plugin:v<version number>
     ```
 
 - **MacOS/Linux**
 
     ```shell
+    # For running the application without SSL
     $ docker run -dp 8080:8080 \
         -v <path/to/database>:${DATABASE_PATH} \
-        -v <path/to/keystore>:${SSL_KEY_STORE} \
         --env-file <path/to/env/file> \
         --name <container-name> \
+        juansecu/openfusion-openapi-plugin:v<version number>
+
+    # For running the application with SSL
+    $ docker run -dp 8080:8080 \
+        -v <path/to/database>:${DATABASE_PATH} \
+        <additional volumes for SSL certificates> \
+        --env-file <path/to/env/file> \
+        --name <container-name> \
+        --entrypoint "java <JVM arguments> -jar /app/app.jar" \
         juansecu/openfusion-openapi-plugin:v<version number>
     ```
 
@@ -114,17 +143,35 @@ change the `image` property to `juansecu/openfusion-openapi-plugin:v<version num
 and configure the following environment variables:
 
 - `LOCAL_DATABASE_PATH` - The path in the host machine to the OpenFusion database to connect
-- `LOCAL_SSL_KEY_STORE` - The path in the host machine to the keystore file
 
-After configuring the environment variables, you can run the application using the following command:
+##### Adding SSL
 
-- **Docker Compose v1**
+For running the application with SSL,
+you will need to set the necessary JVM arguments
+in the `command` property of the `openapi` service,
+and mount the SSL certificate files using Docker volumes.
 
-```shell
-$ docker-compose up -d
+```yaml
+# Windows
+services:
+  openapi:
+    ...
+    volumes:
+      - <path\to\database>:/app/database
+      # Additional volumes for SSL certificates...
+    command: java <JVM arguments> -jar /app/app.jar
+
+# MacOS/Linux
+services:
+  openapi:
+    ...
+    volumes:
+      - <path/to/database>:/app/database
+      # Additional volumes for SSL certificates...
+    command: java <JVM arguments> -jar /app/app.jar
 ```
 
-- **Docker Compose v2**
+After configuring the environment variables, you can run the application using the following command:
 
 ```shell
 $ docker compose up -d
