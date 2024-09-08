@@ -1,6 +1,6 @@
 body {
     overflow: hidden;
-    background: no-repeat center top/cover url(/static/images/holo-char.jpeg);
+    background: no-repeat center top/cover url(/static/images/holo-char.webp);
 }
 
 form {
