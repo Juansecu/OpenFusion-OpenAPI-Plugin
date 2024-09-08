@@ -1,5 +1,6 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.config;
 
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -65,18 +66,24 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                 authorizationManagerRequestMatcherRegistry
                     .requestMatchers(
-                        "/api-docs/**",
                         "/api/auth/**",
                         "/auth/forgot-password",
                         "/auth/login",
                         "/auth/register",
                         "/auth/reset-password",
-                        "/docs",
                         "/favicon.ico",
                         "/static/**",
-                        "/swagger-ui/**",
                         "/api/verification-tokens/**"
                     ).permitAll()
+                    .requestMatchers(
+                        "/api/docs/**",
+                        "/docs",
+                        "/swagger-ui/**"
+                    ).hasAnyAuthority(
+                        EAccountLevel.DEVELOPER.toString(),
+                        EAccountLevel.GAME_MASTER.toString(),
+                        EAccountLevel.MASTER.toString()
+                    )
                     .anyRequest().authenticated()
             )
             .sessionManagement(sessions ->

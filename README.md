@@ -74,6 +74,12 @@ You can check the current state of features [here](https://github.com/Juansecu/O
 ## API Documentation
 
 The API documentation is available at the endpoint `/docs`.
+Keep in mind that the API documentation is only available
+for users with any of the following levels of permissions:
+
+- DEVELOPER (Level 50)
+- GAME MASTER (Level 30)
+- MASTER (Level 1)
 
 ## User Interface
 

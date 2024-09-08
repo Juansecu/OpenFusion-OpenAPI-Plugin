@@ -7,6 +7,7 @@ import java.util.List;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountLevel;
@@ -103,7 +104,7 @@ public class AccountEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(new SimpleGrantedAuthority(this.accountLevel.toString()));
     }
 
     @Override
