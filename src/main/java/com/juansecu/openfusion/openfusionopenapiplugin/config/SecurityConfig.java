@@ -11,6 +11,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,25 +60,28 @@ public class SecurityConfig {
     protected SecurityFilterChain securityFilterChain(
         final HttpSecurity httpSecurity
     ) throws Exception {
-        httpSecurity.csrf().disable()
-            .authorizeHttpRequests().requestMatchers(
-                "/api-docs/**",
-                "/api/auth/**",
-                "/auth/forgot-password",
-                "/auth/login",
-                "/auth/register",
-                "/auth/reset-password",
-                "/docs",
-                "/favicon.ico",
-                "/static/**",
-                "/swagger-ui/**",
-                "/api/verification-tokens/**"
-            ).permitAll()
-            .and()
-            .authorizeHttpRequests().anyRequest().authenticated()
-            .and()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
+        httpSecurity
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
+                authorizationManagerRequestMatcherRegistry
+                    .requestMatchers(
+                        "/api-docs/**",
+                        "/api/auth/**",
+                        "/auth/forgot-password",
+                        "/auth/login",
+                        "/auth/register",
+                        "/auth/reset-password",
+                        "/docs",
+                        "/favicon.ico",
+                        "/static/**",
+                        "/swagger-ui/**",
+                        "/api/verification-tokens/**"
+                    ).permitAll()
+                    .anyRequest().authenticated()
+            )
+            .sessionManagement(sessions ->
+                sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
             .authenticationProvider(this.authenticationProvider())
             .addFilterBefore(
                 this.jwtAuthenticationFilter,
@@ -95,7 +99,9 @@ public class SecurityConfig {
                 this.verificationTokenFinderFilter,
                 ProtectedViewAgainstAuthenticatedUserFilter.class
             )
-            .exceptionHandling().authenticationEntryPoint(this.authenticationEntryPoint);
+            .exceptionHandling(exception ->
+                exception.authenticationEntryPoint(this.authenticationEntryPoint)
+            );
 
         return httpSecurity.build();
     }
