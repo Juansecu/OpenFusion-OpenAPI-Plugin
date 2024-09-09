@@ -1,6 +1,9 @@
 package com.juansecu.openfusion.openfusionopenapiplugin.config;
 
-import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountLevel;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +24,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.juansecu.openfusion.openfusionopenapiplugin.accounts.enums.EAccountLevel;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.JwtAuthenticationFilter;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.ProtectedViewAgainstAuthenticatedUserFilter;
 import com.juansecu.openfusion.openfusionopenapiplugin.auth.filters.ProtectedViewAgainstAuthenticationFilter;
@@ -31,6 +38,8 @@ import com.juansecu.openfusion.openfusionopenapiplugin.verificationtokens.filter
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    @Value("${server.cors.allowed-origins}")
+    private String allowedOrigins;
     @Value("${server.headers.content-security-policy}")
     private String contentSecurityPolicy;
 
@@ -63,10 +72,45 @@ public class SecurityConfig {
     }
 
     @Bean
+    protected CorsConfigurationSource corsConfigurationSource() {
+        final CorsConfiguration apiCorsConfiguration = new CorsConfiguration();
+        final Map<String, CorsConfiguration> corsConfigurations = new HashMap<>(2);
+        final CorsConfiguration uiCorsConfiguration = new CorsConfiguration();
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        apiCorsConfiguration.setAllowedHeaders(List.of("*"));
+        apiCorsConfiguration.setAllowedMethods(List.of("DELETE", "GET", "OPTIONS", "POST", "PUT"));
+        apiCorsConfiguration.setAllowedOrigins(
+            List.of(this.allowedOrigins.split(","))
+        );
+
+        uiCorsConfiguration.setAllowedHeaders(List.of("*"));
+        uiCorsConfiguration.setAllowedMethods(List.of("GET", "OPTIONS", "POST"));
+        uiCorsConfiguration.setAllowedOrigins(List.of("*"));
+
+        corsConfigurations.put("/api/accounts/**", uiCorsConfiguration);
+        corsConfigurations.put("/api/auth/**", apiCorsConfiguration);
+
+        corsConfigurations.put("/accounts/**", uiCorsConfiguration);
+        corsConfigurations.put("/api/docs/**", uiCorsConfiguration);
+        corsConfigurations.put("/api/verification-tokens/**", apiCorsConfiguration);
+        corsConfigurations.put("/auth/**", uiCorsConfiguration);
+        corsConfigurations.put("/docs", uiCorsConfiguration);
+        corsConfigurations.put("/favicon.ico", uiCorsConfiguration);
+        corsConfigurations.put("/static/**", uiCorsConfiguration);
+        corsConfigurations.put("/swagger-ui/**", uiCorsConfiguration);
+
+        source.setCorsConfigurations(corsConfigurations);
+
+        return source;
+    }
+
+    @Bean
     protected SecurityFilterChain securityFilterChain(
         final HttpSecurity httpSecurity
     ) throws Exception {
         httpSecurity
+            .cors(cors -> cors.configurationSource(this.corsConfigurationSource()))
             .csrf(AbstractHttpConfigurer::disable)
             .headers(headers ->
                 headers
