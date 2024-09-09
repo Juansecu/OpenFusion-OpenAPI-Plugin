@@ -10,7 +10,6 @@
     ></title>
 
     <link rel="stylesheet" th:href="@{/static/css/dashboard.css}" />
-    <link rel="stylesheet" th:href="@{/static/css/delete-account.css}" />
     <link rel="stylesheet" th:href="@{/static/css/forms.css}" />
     <link rel="stylesheet" th:href="@{/static/css/main.css}" />
 </head>
@@ -22,7 +21,7 @@
 
         <p
             th:text="${'⚠️ ' + #messages.msg('delete-account.warning-message')}"
-            class="delete-account-warning"
+            style="margin-bottom: 2rem; text-align: center;"
         ></p>
 
         <form
@@ -51,7 +50,7 @@
 
             <a
                 th:href="@{/accounts/email-preferences}"
-                class="cancel-link"
+                style="margin-top: 1rem;"
             >
                 <button
                     type="button"

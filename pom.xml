@@ -12,7 +12,7 @@
 	<artifactId>openfusion-openapi-plugin</artifactId>
 	<version>1.0.0</version>
 	<name>OpenFusion OpenAPI Plugin</name>
-	<description>OpenAPI declaration plugin for OpenFusion</description>
+	<description>OpenAPI declaration plugin for server applications based on OpenFusion</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
@@ -107,6 +107,18 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+				<configuration>
+					<delimiters>
+						<delimiter>@</delimiter>
+					</delimiters>
+					<useDefaultDelimiters>false</useDefaultDelimiters>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
