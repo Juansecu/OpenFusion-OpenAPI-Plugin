@@ -9,8 +9,6 @@ based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
 
 - **Database -** An existent SQLite database of OpenFusion
 
-- **SSL _(Secure Sockets Layer)_ Key Store -** A keystore file that contains a private key and a certificate
-
 - SMTP _(Simple Mail Transfer Protocol)_ Server that supports MIME messages and TLS connections
 
 - **Environment variables**

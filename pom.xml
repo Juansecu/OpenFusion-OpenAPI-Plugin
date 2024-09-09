@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.juansecu.openfusion</groupId>
 	<artifactId>openfusion-openapi-plugin</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>OpenFusion OpenAPI Plugin</name>
 	<description>OpenAPI declaration plugin for server applications based on OpenFusion</description>
 	<properties>
