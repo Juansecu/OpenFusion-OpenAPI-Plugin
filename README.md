@@ -90,9 +90,9 @@ The user interface is available at the endpoint `/auth/login`.
 In order to run the application using [Docker](https://www.docker.com/),
 you must have Docker installed on your machine.
 
-For running the application with Docker, you will need to mount both
-the database and the SSL key store files using Docker volumes
-and map port `8080` to your host machine.
+For running the application with Docker, you will need to mount
+the database file using Docker volumes and map port `8080`
+to your host machine.
 
 #### Docker CLI
 
