@@ -1,5 +1,11 @@
 # OpenFusion OpenAPI Plugin
 
+> [!WARNING]
+> Due to the release of
+> [the official API for OpenFusion from part of the OpenFusion team](https://github.com/OpenFusionProject/ofapi),
+> I decided to archive this repository for ever (for good),
+> meaning no further changes will be applied to this project.
+
 OpenAPI definition plugin for server applications
 based on [OpenFusion](https://github.com/OpenFusionProject/OpenFusion).
 
